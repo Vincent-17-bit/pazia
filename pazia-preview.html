@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pazia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b0b0f;
+    --surface:#151519;
+    --surface-2:#1e1e24;
+    --line:#26262c;
+    --ink:#f2f2f4;
+    --ink-dim:#9a9aa2;
+    --red:#e50914;
+    --red-dim:#7a0710;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  html{scroll-padding-top: calc(120px + env(safe-area-inset-top,0px));}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    padding-bottom: env(safe-area-inset-bottom,0px);
+  }
+  h1,h2,h3,.brand{font-family:'Poppins',sans-serif;}
+  a{color:inherit; text-decoration:none;}
+  button{font-family:inherit; cursor:pointer; border:none; background:none; color:inherit;}
+  img{max-width:100%; display:block;}
+
+  /* ---------- Header (fixed, always visible) ---------- */
+  .app-header{
+    position:fixed; top:0; left:0; right:0; z-index:50;
+    display:flex; align-items:center; justify-content:space-between;
+    padding: calc(14px + env(safe-area-inset-top,0px)) 20px 14px;
+    background:rgba(11,11,15,0.92);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .brand{
+    font-size:26px; font-weight:700; color:var(--ink);
+    width:38px; height:38px; border:2px solid var(--red);
+    border-radius:10px; display:flex; align-items:center; justify-content:center;
+    letter-spacing:0;
+  }
+  .icon-btn{
+    width:38px; height:38px; display:flex; align-items:center; justify-content:center;
+    border-radius:50%;
+  }
+  .icon-btn:hover{background:var(--surface-2);}
+  .icon-btn svg{width:20px; height:20px; stroke:var(--ink); fill:none; stroke-width:2;}
+
+  /* ---------- Tabs (sticky just under header) ---------- */
+  .tabs-bar{
+    position:fixed; left:0; right:0; z-index:45;
+    top: calc(66px + env(safe-area-inset-top,0px));
+    display:flex; gap:10px; overflow-x:auto;
+    padding:12px 20px;
+    background:linear-gradient(180deg, rgba(11,11,15,0.85), rgba(11,11,15,0));
+    scrollbar-width:none;
+  }
+  .tabs-bar::-webkit-scrollbar{display:none;}
+  .tab-pill{
+    flex:0 0 auto;
+    padding:8px 18px;
+    border:1px solid var(--line);
+    border-radius:999px;
+    font-size:13px; font-weight:500;
+    color:var(--ink-dim);
+    white-space:nowrap;
+  }
+  .tab-pill[aria-selected="true"]{
+    background:var(--red);
+    border-color:var(--red);
+    color:#fff;
+    font-weight:600;
+  }
+
+  /* ---------- Page content offset ---------- */
+  .page{
+    padding-top: calc(120px + env(safe-area-inset-top,0px));
+  }
+
+  /* ---------- Hero ---------- */
+  .hero{
+    position:relative;
+    height:64vh; min-height:420px;
+    overflow:hidden;
+  }
+  .hero-bg{
+    position:absolute; inset:0;
+    background-size:cover; background-position:center;
+    transition:background-image .4s ease, opacity .4s ease;
+  }
+  .hero-shade{
+    position:absolute; inset:0;
+    background:
+      linear-gradient(90deg, rgba(11,11,15,0.95) 0%, rgba(11,11,15,0.55) 45%, rgba(11,11,15,0.15) 75%),
+      linear-gradient(0deg, var(--bg) 0%, rgba(11,11,15,0.1) 40%);
+  }
+  .hero-content{
+    position:relative; z-index:2;
+    height:100%; display:flex; flex-direction:column; justify-content:flex-end;
+    padding:0 20px 18px;
+    max-width:640px;
+  }
+  .hero-title{font-size:clamp(28px,6vw,44px); font-weight:700; margin-bottom:8px;}
+  .hero-meta{font-size:13px; color:var(--ink-dim); display:flex; gap:8px; align-items:center; margin-bottom:10px;}
+  .hero-meta .dot{width:3px; height:3px; border-radius:50%; background:var(--ink-dim);}
+  .hero-overview{
+    font-size:14px; line-height:1.5; color:#d4d4d8;
+    display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;
+    margin-bottom:16px;
+  }
+  .hero-actions{display:flex; gap:12px; margin-bottom:22px;}
+  .btn{
+    display:flex; align-items:center; gap:8px;
+    padding:10px 20px; border-radius:8px; font-size:14px; font-weight:600;
+  }
+  .btn-play{background:#fff; color:#0b0b0f;}
+  .btn-list{background:rgba(255,255,255,0.12); color:#fff; border:1px solid rgba(255,255,255,0.25);}
+  .btn svg{width:16px; height:16px;}
+
+  /* ---------- Title strip ---------- */
+  .title-strip-wrap{
+    overflow-x:auto; overflow-y:hidden; white-space:nowrap;
+    scrollbar-width:none; cursor:grab;
+    -webkit-mask-image:linear-gradient(90deg, transparent 0, #000 24px, #000 calc(100% - 24px), transparent 100%);
+    mask-image:linear-gradient(90deg, transparent 0, #000 24px, #000 calc(100% - 24px), transparent 100%);
+  }
+  .title-strip-wrap::-webkit-scrollbar{display:none;}
+  .title-strip{display:inline-flex; align-items:baseline; font-size:13px; padding:2px 0;}
+  .strip-item{color:var(--ink-dim); padding:2px 4px;}
+  .strip-item[aria-current="true"]{color:#fff; font-weight:600;}
+  .strip-dot{color:var(--red); margin:0 2px;}
+
+  /* ---------- Rows ---------- */
+  .row-section{padding:22px 0 6px;}
+  .row-head{display:flex; align-items:baseline; justify-content:space-between; padding:0 20px 12px;}
+  .row-head h2{font-size:17px; font-weight:600;}
+  .row-track{display:flex; gap:12px; overflow-x:auto; padding:0 20px 6px; scrollbar-width:none;}
+  .row-track::-webkit-scrollbar{display:none;}
+
+  .card{flex:0 0 132px; position:relative;}
+  .poster{
+    width:132px; height:198px; border-radius:8px;
+    display:flex; align-items:flex-end; padding:8px;
+    background-size:cover; background-position:center;
+    transition:transform .25s ease;
+    overflow:hidden;
+  }
+  .card:hover .poster{transform:scale(1.08); z-index:3;}
+  .poster-title{font-size:11px; font-weight:600; color:#fff; text-shadow:0 1px 4px rgba(0,0,0,0.6);}
+
+  .cw-card{flex:0 0 210px;}
+  .cw-poster{width:210px; height:118px; border-radius:8px; background-size:cover; background-position:center; position:relative;}
+  .cw-progress{position:absolute; left:0; right:0; bottom:0; height:3px; background:rgba(255,255,255,0.2);}
+  .cw-progress-fill{height:100%; background:var(--red);}
+  .cw-meta{font-size:11px; color:var(--ink-dim); margin-top:6px;}
+
+  /* ---------- Search overlay ---------- */
+  .search-overlay{
+    position:fixed; inset:0; z-index:100;
+    visibility:hidden; opacity:0;
+    transition:opacity .22s ease, visibility .22s ease;
+  }
+  .search-overlay.open{visibility:visible; opacity:1;}
+  .search-scrim{
+    position:absolute; inset:0;
+    background:rgba(11,11,15,0.7);
+    backdrop-filter:blur(6px) saturate(60%);
+  }
+  .search-panel{
+    position:relative; z-index:2;
+    height:100%; display:flex; flex-direction:column;
+    padding: calc(16px + env(safe-area-inset-top,0px)) 20px 20px;
+    transform:translateY(-8px);
+    transition:transform .22s ease;
+  }
+  .search-overlay.open .search-panel{transform:translateY(0);}
+  .search-top{display:flex; align-items:center; gap:12px; margin-bottom:18px;}
+  .search-close{
+    width:38px; height:38px; border-radius:50%; flex:0 0 auto;
+    display:flex; align-items:center; justify-content:center;
+    background:var(--surface-2); border:1px solid var(--line);
+  }
+  .search-close svg{width:18px; height:18px; stroke:var(--ink); fill:none; stroke-width:2;}
+  .search-field{
+    flex:1; display:flex; align-items:center; gap:10px;
+    background:var(--surface); border:1px solid var(--line); border-radius:10px;
+    padding:10px 14px;
+  }
+  .search-field svg{width:18px; height:18px; stroke:var(--ink-dim); fill:none; stroke-width:2; flex:0 0 auto;}
+  .search-field input{
+    flex:1; background:none; border:none; outline:none; color:var(--ink); font-size:15px;
+  }
+  .search-field input::placeholder{color:rgba(154,154,162,0.55);}
+
+  .search-body{flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch;}
+  .search-section-title{font-size:13px; font-weight:600; color:var(--ink-dim); margin:6px 0 12px;}
+  .top-searches{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px;}
+  .chip{
+    padding:8px 14px; border-radius:999px; border:1px solid var(--line);
+    font-size:13px; color:var(--ink-dim);
+  }
+  .search-status{font-size:13px; color:var(--ink-dim); padding:8px 0;}
+  .results-grid{
+    display:grid; grid-template-columns:repeat(auto-fill,minmax(110px,1fr)); gap:14px;
+  }
+  .result-card .poster{width:100%; height:150px;}
+  .result-title{font-size:12px; margin-top:6px; color:var(--ink); line-height:1.3;}
+  .result-year{font-size:11px; color:var(--ink-dim);}
+
+  /* ---------- Footer ---------- */
+  footer{padding:40px 20px 60px; border-top:1px solid var(--line); margin-top:30px;}
+  footer p{font-size:12px; color:var(--ink-dim); line-height:1.6;}
+  footer .links{display:flex; gap:16px; margin-top:10px;}
+  footer .links a{font-size:12px; color:var(--ink-dim);}
+
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none !important;}
+  }
+
+  @media (max-width:480px){
+    .hero{height:56vh;}
+    .card{flex:0 0 110px;}
+    .poster{width:110px; height:165px;}
+  }
+</style>
+</head>
+<body>
+
+  <header class="app-header">
+    <div class="brand">P</div>
+    <button class="icon-btn" id="searchOpenBtn" aria-label="Open search">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.6" y2="16.6"/></svg>
+    </button>
+  </header>
+
+  <nav class="tabs-bar" role="tablist" id="tabsBar" aria-label="Browse">
+    <button class="tab-pill" role="tab" data-tab="home" aria-selected="true">Home</button>
+    <button class="tab-pill" role="tab" data-tab="tvshows" aria-selected="false">TV Shows</button>
+    <button class="tab-pill" role="tab" data-tab="movies" aria-selected="false">Movies</button>
+    <button class="tab-pill" role="tab" data-tab="series" aria-selected="false">Series</button>
+    <button class="tab-pill" role="tab" data-tab="swahili" aria-selected="false">Swahili</button>
+  </nav>
+
+  <main class="page">
+    <section class="hero" id="hero">
+      <div class="hero-bg" id="heroBg"></div>
+      <div class="hero-shade"></div>
+      <div class="hero-content">
+        <div class="hero-title" id="heroTitle">—</div>
+        <div class="hero-meta">
+          <span id="heroYear"></span><span class="dot"></span>
+          <span id="heroRating"></span><span class="dot"></span>
+          <span id="heroGenre"></span>
+        </div>
+        <p class="hero-overview" id="heroOverview"></p>
+        <div class="hero-actions">
+          <button class="btn btn-play"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>Play</button>
+          <button class="btn btn-list"><svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>My List</button>
+        </div>
+        <div class="title-strip-wrap" id="stripWrap">
+          <div class="title-strip" id="titleStrip"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="row-section">
+      <div class="row-head"><h2>Continue Watching</h2></div>
+      <div class="row-track" id="cwRow"></div>
+    </section>
+
+    <section class="row-section">
+      <div class="row-head"><h2 id="mainRowLabel">Home</h2></div>
+      <div class="row-track" id="mainRow"></div>
+    </section>
+
+    <section class="row-section">
+      <div class="row-head"><h2>Trending</h2></div>
+      <div class="row-track" id="trendingRow"></div>
+    </section>
+
+    <footer>
+      <p>This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
+      <div class="links"><a href="#">Terms</a><a href="#">Privacy</a><a href="#">DMCA</a></div>
+    </footer>
+  </main>
+
+  <div class="search-overlay" id="searchOverlay">
+    <div class="search-scrim" id="searchScrim"></div>
+    <div class="search-panel">
+      <div class="search-top">
+        <div class="search-field">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.6" y2="16.6"/></svg>
+          <input id="searchInput" type="text" placeholder="Search titles, people, genres…" autocomplete="off">
+        </div>
+        <button class="search-close" id="searchCloseBtn" aria-label="Close search">
+          <svg viewBox="0 0 24 24"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>
+        </button>
+      </div>
+      <div class="search-body" id="searchBody">
+        <div id="topSearchesWrap">
+          <div class="search-section-title">Top searches</div>
+          <div class="top-searches" id="topSearches"></div>
+        </div>
+        <div id="searchStatus" class="search-status" style="display:none;"></div>
+        <div class="results-grid" id="resultsGrid"></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const COLORS = [
+    ['#3a0d10','#0b0b0f'], ['#4a1116','#1a0508'], ['#2a0a10','#0b0b0f'],
+    ['#5c1018','#120306'], ['#331013','#0b0b0f'], ['#421015','#150507']
+  ];
+  function grad(i){ const [a,b]=COLORS[i%COLORS.length]; return `linear-gradient(135deg, ${a}, ${b})`; }
+
+  const DATA = {
+    home:   ['Mathare Girls','Pazia','Utu','Vunja Mifupa','Siri','The Trial','Nairobi Half Life','Watu Wote'],
+    tvshows:['Sultana','Zora','Pete','Selina','Njoro wa Uba','Auntie Boss','Papa Sava','Mtakawana'],
+    movies: ['Disconnect','40 Sticks','Country Queen','Plan B','Poacher','The Battle of Nairobi','Sincerely Daisy','Click Click Bang'],
+    series: ['Crime and Justice','Shanty Town','The Real House Helps','Njoro Wa Uba','K-24','Wingu La Moto','Machachari','Inspekta Mwala'],
+    swahili:['Zilizala','Aziza','Tujuane','Maria','Kina Mama','Sultana','Bahati','Msichana Wa Kiziwi']
+  };
+  const YEARS=['2021','2022','2023','2024','2025'];
+  const GENRES=['Drama','Thriller','Comedy','Romance','Action','Crime'];
+
+  function buildItem(title, i){
+    return {
+      title, rating:(6+Math.random()*3.5).toFixed(1), year:YEARS[i%YEARS.length],
+      genre:GENRES[i%GENRES.length], color:i,
+      overview:`${title} follows a group of characters navigating ambition, loyalty and consequence against a backdrop that refuses to make things easy for them.`
+    };
+  }
+
+  let currentTab='home';
+  let items = DATA.home.map(buildItem);
+  let heroIndex = Math.floor(Math.random()*Math.min(5, items.length));
+
+  const heroBg=document.getElementById('heroBg');
+  const heroTitle=document.getElementById('heroTitle');
+  const heroYear=document.getElementById('heroYear');
+  const heroRating=document.getElementById('heroRating');
+  const heroGenre=document.getElementById('heroGenre');
+  const heroOverview=document.getElementById('heroOverview');
+  const titleStrip=document.getElementById('titleStrip');
+  const mainRow=document.getElementById('mainRow');
+  const mainRowLabel=document.getElementById('mainRowLabel');
+  const trendingRow=document.getElementById('trendingRow');
+  const cwRow=document.getElementById('cwRow');
+
+  const TAB_LABEL={home:'Home',tvshows:'TV Shows',movies:'Movies',series:'Series',swahili:'Swahili'};
+
+  function renderHero(){
+    const it = items[heroIndex];
+    heroBg.style.backgroundImage = grad(it.color);
+    heroTitle.textContent = it.title;
+    heroYear.textContent = it.year;
+    heroRating.textContent = '★ ' + it.rating;
+    heroGenre.textContent = it.genre;
+    heroOverview.textContent = it.overview;
+  }
+
+  function renderStrip(){
+    titleStrip.innerHTML = items.map((it,i)=>
+      `<span class="strip-item" data-i="${i}" aria-current="${i===heroIndex}">${it.title}</span>`
+      + (i<items.length-1 ? '<span class="strip-dot">·</span>' : '')
+    ).join('');
+    [...titleStrip.querySelectorAll('.strip-item')].forEach(el=>{
+      el.addEventListener('click', ()=>{
+        heroIndex = parseInt(el.dataset.i,10);
+        renderHero(); renderStrip();
+        el.scrollIntoView({inline:'center', behavior:'smooth', block:'nearest'});
+      });
+    });
+  }
+
+  function card(it){
+    const el=document.createElement('div');
+    el.className='card';
+    el.innerHTML=`<div class="poster" style="background-image:${grad(it.color)}"><span class="poster-title">${it.title}</span></div>`;
+    return el;
+  }
+
+  function renderRow(container, list){
+    container.innerHTML='';
+    list.forEach(it=>container.appendChild(card(it)));
+  }
+
+  function renderContinueWatching(){
+    const cw = items.slice(0,4).map((it,i)=>({...it, pct: 15+Math.random()*70, ep:`S${1+i%2} · E${9+i}`}));
+    cwRow.innerHTML='';
+    cw.forEach(it=>{
+      const el=document.createElement('div');
+      el.className='cw-card';
+      el.innerHTML=`
+        <div class="cw-poster" style="background-image:${grad(it.color)}">
+          <div class="cw-progress"><div class="cw-progress-fill" style="width:${it.pct}%"></div></div>
+        </div>
+        <div class="cw-meta">${it.title} · ${it.ep}</div>`;
+      cwRow.appendChild(el);
+    });
+  }
+
+  function setTab(tab){
+    currentTab = tab;
+    items = DATA[tab].map(buildItem);
+    heroIndex = tab==='home' ? Math.floor(Math.random()*Math.min(5, items.length)) : 0;
+    mainRowLabel.textContent = TAB_LABEL[tab];
+    renderHero(); renderStrip();
+    renderRow(mainRow, items);
+    renderRow(trendingRow, [...items].reverse());
+    document.querySelectorAll('.tab-pill').forEach(b=>b.setAttribute('aria-selected', b.dataset.tab===tab));
+  }
+
+  document.getElementById('tabsBar').addEventListener('click', e=>{
+    const btn=e.target.closest('.tab-pill');
+    if(!btn) return;
+    setTab(btn.dataset.tab);
+  });
+
+  document.getElementById('tabsBar').addEventListener('keydown', e=>{
+    if(!['ArrowLeft','ArrowRight'].includes(e.key)) return;
+    const tabs=[...document.querySelectorAll('.tab-pill')];
+    const idx=tabs.findIndex(t=>t.dataset.tab===currentTab);
+    const next = e.key==='ArrowRight' ? (idx+1)%tabs.length : (idx-1+tabs.length)%tabs.length;
+    tabs[next].focus();
+    setTab(tabs[next].dataset.tab);
+  });
+
+  renderContinueWatching();
+  setTab('home');
+
+  /* ---------- Search ---------- */
+  const overlay=document.getElementById('searchOverlay');
+  const searchInput=document.getElementById('searchInput');
+  const searchStatus=document.getElementById('searchStatus');
+  const resultsGrid=document.getElementById('resultsGrid');
+  const topSearchesWrap=document.getElementById('topSearchesWrap');
+  const topSearches=document.getElementById('topSearches');
+
+  const ALL_ITEMS = Object.values(DATA).flat().map(buildItem);
+  const TOP=['Mathare Girls','Pazia','Utu','Country Queen','Sultana'];
+  topSearches.innerHTML = TOP.map(t=>`<button class="chip" data-q="${t}">${t}</button>`).join('');
+
+  let searchTimer=null;
+
+  function openSearch(){
+    overlay.classList.add('open');
+    resetSearch();
+    setTimeout(()=>searchInput.focus(), 50);
+  }
+  function closeSearch(){
+    overlay.classList.remove('open');
+  }
+  function resetSearch(){
+    searchInput.value='';
+    searchStatus.style.display='none';
+    resultsGrid.innerHTML='';
+    topSearchesWrap.style.display='block';
+  }
+
+  function runSearch(q){
+    if(!q){ resetSearch(); return; }
+    topSearchesWrap.style.display='none';
+    resultsGrid.innerHTML='';
+    searchStatus.style.display='block';
+    searchStatus.textContent='Searching…';
+
+    clearTimeout(searchTimer);
+    const delay = 300 + Math.random()*700; // simulated backend latency, capped under 3s
+    searchTimer = setTimeout(()=>{
+      const matches = ALL_ITEMS.filter(it=>it.title.toLowerCase().includes(q.toLowerCase()));
+      searchStatus.style.display='none';
+      if(matches.length===0){
+        searchStatus.style.display='block';
+        searchStatus.textContent=`No matches for "${q}".`;
+        return;
+      }
+      resultsGrid.innerHTML = matches.map(it=>`
+        <div class="result-card" data-title="${it.title}">
+          <div class="poster" style="background-image:${grad(it.color)}"></div>
+          <div class="result-title">${it.title}</div>
+          <div class="result-year">${it.year}</div>
+        </div>`).join('');
+    }, delay);
+  }
+
+  searchInput.addEventListener('input', e=>{
+    clearTimeout(searchTimer);
+    const q=e.target.value.trim();
+    if(!q){ resetSearch(); return; }
+    searchTimer=setTimeout(()=>runSearch(q), 300);
+  });
+
+  topSearches.addEventListener('click', e=>{
+    const btn=e.target.closest('.chip');
+    if(!btn) return;
+    searchInput.value=btn.dataset.q;
+    runSearch(btn.dataset.q);
+  });
+
+  resultsGrid.addEventListener('click', e=>{
+    const card=e.target.closest('.result-card');
+    if(!card) return;
+    closeSearch();
+    alert(`Navigating to watch page for "${card.dataset.title}"`);
+  });
+
+  document.getElementById('searchOpenBtn').addEventListener('click', openSearch);
+  document.getElementById('searchCloseBtn').addEventListener('click', closeSearch);
+  document.getElementById('searchScrim').addEventListener('click', closeSearch);
+  document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeSearch(); });
+</script>
+</body>
+</html>
