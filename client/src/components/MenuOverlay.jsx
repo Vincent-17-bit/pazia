@@ -55,11 +55,11 @@ export default function MenuOverlay({ open, onClose, onSearchClick, onSelectSubc
                   <div className="pb-3.5 flex flex-col gap-1">
                     {cat.items.map((item) => (
                       <button
-                        key={item}
+                        key={item.rowKey}
                         onClick={() => pick(item)}
                         className="text-left py-2 text-[14px] text-inkdim"
                       >
-                        {item}
+                        {item.label}
                       </button>
                     ))}
                   </div>

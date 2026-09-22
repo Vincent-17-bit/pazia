@@ -34,11 +34,43 @@ async function fetchByKeyword(mediaType, page) {
   return normalizeList(data.results, mediaType);
 }
 
+const keywordIdCache = new Map();
+async function resolveKeywordIds(query) {
+  if (keywordIdCache.has(query)) return keywordIdCache.get(query);
+  const data = await tmdbFetch('/search/keyword', { query });
+  const ids = (data.results || []).slice(0, 3).map((k) => k.id);
+  keywordIdCache.set(query, ids);
+  return ids;
+}
+
+async function fetchByKeywordQuery(mediaType, keywordQuery, extraParams = {}, page) {
+  const ids = await resolveKeywordIds(keywordQuery);
+  if (!ids.length) return [];
+  const data = await tmdbFetch(`/discover/${mediaType}`, { with_keywords: ids.join('|'), ...extraParams, page });
+  return normalizeList(data.results, mediaType);
+}
+
+async function fetchMulti(paramsByType, page) {
+  const lists = await Promise.all(
+    Object.entries(paramsByType).map(([mediaType, params]) => fetchDiscover(mediaType, params, page))
+  );
+  return lists.flat();
+}
+
+async function fetchMerge(mediaType, paramsList, page) {
+  const lists = await Promise.all(paramsList.map((params) => fetchDiscover(mediaType, params, page)));
+  const seen = new Set();
+  return lists.flat().filter((item) => (seen.has(item.id) ? false : (seen.add(item.id), true)));
+}
+
 async function resolveMapping(mapping, page = 1) {
   if (mapping.source === 'trending') return fetchTrending();
   if (mapping.source === 'discover') return fetchDiscover(mapping.mediaType, mapping.params, page);
   if (mapping.source === 'discover_swahili') return fetchSwahili(page);
   if (mapping.source === 'discover_keyword') return fetchByKeyword(mapping.mediaType, page);
+  if (mapping.source === 'discover_keyword_query') return fetchByKeywordQuery(mapping.mediaType, mapping.keywordQuery, mapping.params, page);
+  if (mapping.source === 'discover_multi') return fetchMulti(mapping.paramsByType, page);
+  if (mapping.source === 'discover_merge') return fetchMerge(mapping.mediaType, mapping.paramsList, page);
   return [];
 }
 
