@@ -3,6 +3,7 @@ import { Routes, Route, useLocation } from 'react-router-dom';
 import Header from './components/Header.jsx';
 import BottomNav from './components/BottomNav.jsx';
 import SearchOverlay from './components/SearchOverlay.jsx';
+import MenuOverlay from './components/MenuOverlay.jsx';
 import Footer from './components/Footer.jsx';
 import Home from './pages/Home.jsx';
 import Search from './pages/Search.jsx';
@@ -14,6 +15,7 @@ import Legal from './pages/Legal.jsx';
 
 export default function App() {
   const [searchOpen, setSearchOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
   const isPlayer = location.pathname.startsWith('/watch/');
 
@@ -27,7 +29,7 @@ export default function App() {
 
   return (
     <>
-      <Header onSearchClick={() => setSearchOpen(true)} />
+      <Header onMenuClick={() => setMenuOpen(true)} />
       <main className="pb-20 md:pb-0">
         <Routes>
           <Route path="/" element={<Home />} />
@@ -42,7 +44,16 @@ export default function App() {
         <Footer />
       </main>
       <BottomNav />
-      <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />
+      <MenuOverlay
+        open={menuOpen}
+        onClose={() => setMenuOpen(false)}
+        onSearchClick={() => setSearchOpen(true)}
+      />
+      <SearchOverlay
+        open={searchOpen}
+        onClose={() => setSearchOpen(false)}
+        onSelect={() => { setSearchOpen(false); setMenuOpen(false); }}
+      />
     </>
   );
 }

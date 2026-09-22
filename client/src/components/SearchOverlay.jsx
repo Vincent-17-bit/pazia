@@ -13,7 +13,7 @@ function pushRecent(q) {
   return list;
 }
 
-export default function SearchOverlay({ open, onClose }) {
+export default function SearchOverlay({ open, onClose, onSelect }) {
   const [q, setQ] = useState('');
   const [status, setStatus] = useState('idle');
   const [results, setResults] = useState([]);
@@ -78,7 +78,7 @@ export default function SearchOverlay({ open, onClose }) {
 
   function goToTitle(item) {
     pushRecent(q);
-    onClose();
+    onSelect ? onSelect() : onClose();
     navigate(`/title/${item.mediaType}/${item.id}`);
   }
 
