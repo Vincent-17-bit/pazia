@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { grad } from './PosterCard.jsx';
 import TitleStrip from './TitleStrip.jsx';
 
-export default function Hero({ featured, strip, onStripSelect }) {
+export default function Hero({ featured, strip, onStripSelect, kicker }) {
   if (!featured) {
     return <div className="h-[64vh] min-h-[420px] bg-surface animate-pulse" />;
   }
@@ -19,6 +19,9 @@ export default function Hero({ featured, strip, onStripSelect }) {
         }}
       />
       <div className="relative z-10 h-full flex flex-col justify-end px-5 pb-4.5 max-w-[640px]">
+        {kicker && (
+          <div className="text-[13px] font-semibold tracking-wide text-red uppercase mb-1.5">{kicker}</div>
+        )}
         <h1 className="text-[clamp(28px,6vw,44px)] font-bold mb-2">{featured.title}</h1>
         <div className="flex gap-2 items-center text-[13px] text-inkdim mb-2.5">
           <span>{featured.year}</span>

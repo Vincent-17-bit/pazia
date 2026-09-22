@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import Header from './components/Header.jsx';
 import BottomNav from './components/BottomNav.jsx';
 import SearchOverlay from './components/SearchOverlay.jsx';
@@ -16,7 +16,9 @@ import Legal from './pages/Legal.jsx';
 export default function App() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState(null);
   const location = useLocation();
+  const navigate = useNavigate();
   const isPlayer = location.pathname.startsWith('/watch/');
 
   if (isPlayer) {
@@ -32,7 +34,7 @@ export default function App() {
       <Header onMenuClick={() => setMenuOpen(true)} />
       <main className="pb-20 md:pb-0">
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<Home selectedCategory={selectedCategory} />} />
           <Route path="/search" element={<Search />} />
           <Route path="/title/:mediaType/:id" element={<TitleDetail />} />
           <Route path="/my-list" element={<MyList />} />
@@ -48,6 +50,10 @@ export default function App() {
         open={menuOpen}
         onClose={() => setMenuOpen(false)}
         onSearchClick={() => setSearchOpen(true)}
+        onSelectSubcategory={(item) => {
+          setSelectedCategory(item);
+          navigate('/');
+        }}
       />
       <SearchOverlay
         open={searchOpen}

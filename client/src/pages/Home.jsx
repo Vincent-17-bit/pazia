@@ -69,7 +69,7 @@ const ROW_KEYS = [
   ['reality_rush', 'Reality Rush'],
 ];
 
-export default function Home() {
+export default function Home({ selectedCategory }) {
   const [params, setParams] = useSearchParams();
   const tab = params.get('tab') || 'home';
   const [featured, setFeatured] = useState(null);
@@ -90,26 +90,39 @@ export default function Home() {
   });
 
   const cw = useContinueWatching();
+  const rowsByKey = Object.fromEntries((rowsQuery.data?.rows || []).map((r) => [r.key, r.items]));
+  const selectedItems = selectedCategory ? rowsByKey[selectedCategory.rowKey] : null;
 
   useEffect(() => {
-    if (heroQuery.data?.featured) setFeatured(heroQuery.data.featured);
-  }, [heroQuery.data]);
+    if (selectedCategory) {
+      if (selectedItems?.length) setFeatured(selectedItems[0]);
+    } else if (heroQuery.data?.featured) {
+      setFeatured(heroQuery.data.featured);
+    }
+  }, [selectedCategory, selectedItems, heroQuery.data]);
 
   function setTab(next) {
     setParams(next === 'home' ? {} : { tab: next });
   }
 
   const TAB_LABEL = { home: 'Home', tvshows: 'TV Shows', movies: 'Movies', series: 'Series', swahili: 'Swahili' };
-  const rowsByKey = Object.fromEntries((rowsQuery.data?.rows || []).map((r) => [r.key, r.items]));
+  const orderedRowKeys = selectedCategory
+    ? [[selectedCategory.rowKey, selectedCategory.label], ...ROW_KEYS.filter(([k]) => k !== selectedCategory.rowKey)]
+    : ROW_KEYS;
 
   return (
     <>
       <TabsBar active={tab} onChange={setTab} />
       <div className="pt-[calc(120px+env(safe-area-inset-top,0px))]">
-        <Hero featured={featured} strip={heroQuery.data?.strip} onStripSelect={setFeatured} />
+        <Hero
+          featured={featured}
+          strip={selectedCategory ? selectedItems : heroQuery.data?.strip}
+          onStripSelect={setFeatured}
+          kicker={selectedCategory?.label}
+        />
         <ContinueWatchingRow items={cw.data} loading={cw.isLoading} onSeedDemo={cw.seedDemo} />
         <Row title={TAB_LABEL[tab]} items={browseQuery.data?.items} loading={browseQuery.isLoading} />
-        {ROW_KEYS.map(([key, label]) => (
+        {orderedRowKeys.map(([key, label]) => (
           <Row key={key} title={label} items={rowsByKey[key]} loading={rowsQuery.isLoading} lazy />
         ))}
       </div>
