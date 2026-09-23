@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { useParams, useSearchParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useSearchParams, useNavigate, useLocation, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../lib/api.js';
 import Player from '../player/Player.jsx';
@@ -8,8 +8,14 @@ export default function Watch() {
   const { mediaType, id } = useParams();
   const [params] = useSearchParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const season = params.get('season') ? Number(params.get('season')) : null;
   const episode = params.get('episode') ? Number(params.get('episode')) : null;
+
+  function goBack() {
+    if (location.key !== 'default') navigate(-1);
+    else navigate(`/title/${mediaType}/${id}`, { replace: true });
+  }
 
   const [showNext, setShowNext] = useState(false);
   const [countdown, setCountdown] = useState(8);
@@ -76,7 +82,7 @@ export default function Watch() {
   if (sourceQuery.isError || !sourceQuery.data) {
     return (
       <div className="fixed inset-0 bg-black flex flex-col items-center justify-center text-center px-6 gap-4">
-        <button onClick={() => navigate(-1)} className="absolute top-[calc(16px+env(safe-area-inset-top,0px))] left-4 w-9 h-9 rounded-full bg-white/10 flex items-center justify-center">
+        <button onClick={goBack} className="absolute top-[calc(16px+env(safe-area-inset-top,0px))] left-4 w-9 h-9 rounded-full bg-white/10 flex items-center justify-center">
           <svg viewBox="0 0 24 24" className="w-5 h-5 stroke-white fill-none stroke-2"><path d="M15 19l-7-7 7-7" /></svg>
         </button>
         <p className="text-white text-sm max-w-xs">
@@ -99,7 +105,7 @@ export default function Watch() {
         startAt={startAt}
         onProgress={saveProgress}
         onEnded={onEnded}
-        onBack={() => navigate(-1)}
+        onBack={goBack}
         title={title}
         subtitle={subtitle}
       />
