@@ -8,7 +8,7 @@ export default function ContinueWatchingRow({ items, loading, onSeedDemo }) {
         <div className="px-5 pb-3"><h2 className="text-[17px] font-semibold">Continue Watching</h2></div>
         <div className="flex gap-3 px-5">
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="flex-none w-[210px] h-[118px] rounded-lg bg-surface2 animate-pulse" />
+            <div key={i} className="flex-none w-[170px] sm:w-[190px] md:w-[210px] lg:w-[230px] aspect-[210/118] rounded-lg bg-surface2 animate-pulse" />
           ))}
         </div>
       </section>
@@ -44,8 +44,8 @@ export default function ContinueWatchingRow({ items, loading, onSeedDemo }) {
             ? `/watch/${it.mediaType}/${it.id}?season=${it.season}&episode=${it.episode}`
             : `/watch/${it.mediaType}/${it.id}`;
           return (
-            <Link key={`${it.mediaType}-${it.id}-${it.season ?? ''}-${it.episode ?? ''}`} to={href} className="flex-none w-[210px]">
-              <div className="relative w-[210px] h-[118px] rounded-lg bg-cover bg-center overflow-hidden" style={{ backgroundImage: bg }}>
+            <Link key={`${it.mediaType}-${it.id}-${it.season ?? ''}-${it.episode ?? ''}`} to={href} className="flex-none w-[170px] sm:w-[190px] md:w-[210px] lg:w-[230px]">
+              <div className="relative aspect-[210/118] rounded-lg bg-cover bg-center overflow-hidden" style={{ backgroundImage: bg }}>
                 <div className="absolute left-0 right-0 bottom-0 h-[3px] bg-white/20">
                   <div className="h-full bg-red" style={{ width: `${it.progressPct}%` }} />
                 </div>

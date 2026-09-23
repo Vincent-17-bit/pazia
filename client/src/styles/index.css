@@ -14,13 +14,14 @@
 
 * { box-sizing: border-box; }
 html, body, #root { height: 100%; }
-html { scroll-padding-top: calc(120px + env(safe-area-inset-top, 0px)); }
+html { scroll-padding-top: calc(120px + env(safe-area-inset-top, 0px)); overflow-x: hidden; }
 body {
   background: var(--bg);
   color: var(--ink);
   font-family: 'Inter', sans-serif;
   -webkit-font-smoothing: antialiased;
   padding-bottom: env(safe-area-inset-bottom, 0px);
+  overflow-x: hidden;
 }
 h1, h2, h3, .brand { font-family: 'Poppins', sans-serif; }
 
