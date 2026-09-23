@@ -2,7 +2,7 @@ export default function Header({ onMenuClick }) {
   return (
     <header className="fixed top-0 left-0 right-0 z-[110] flex items-center justify-between border-b border-line bg-bg/90 backdrop-blur px-5 py-3 pt-[calc(0.75rem+env(safe-area-inset-top,0px))]">
       <div className="brand w-9 h-9 flex items-center justify-center rounded-[10px] border-2 border-red text-xl font-bold">
-        P
+        N
       </div>
       <button
         aria-label="Open menu"

@@ -12,6 +12,8 @@ export default function ControlsOverlay({
   screenFit, onToggleScreenFit,
   fullscreen, onToggleFullscreen,
   pipAvailable, pipActive, onTogglePip,
+  airplayAvailable, onAirplay,
+  qualityLabel,
   showNext, nextCountdown, onPlayNext, onCancelNext,
   flash,
 }) {
@@ -104,6 +106,9 @@ export default function ControlsOverlay({
             <span className="text-xs text-white/80 tabular-nums">{formatTime(current)}</span>
             <div className="flex-1" />
             <span className="text-xs text-white/60 tabular-nums">{formatRemaining(current, duration)}</span>
+            {qualityLabel && (
+              <span className="hidden sm:inline text-[10px] text-white/50 border border-white/20 rounded px-1.5 py-0.5">{qualityLabel}</span>
+            )}
 
             <button onClick={onOpenSettings} aria-label="Subtitles" className="min-w-[44px] min-h-[44px] flex items-center justify-center">
               <Icon d="M4 5h16v11H8l-4 4V5z" />
@@ -111,6 +116,11 @@ export default function ControlsOverlay({
             <button onClick={onToggleScreenFit} aria-label="Screen fit" className="min-w-[44px] min-h-[44px] hidden sm:flex items-center justify-center">
               <Icon d={screenFit === 'contain' ? 'M4 8V4h4M20 8V4h-4M4 16v4h4M20 16v4h-4' : 'M4 4h16v16H4z'} />
             </button>
+            {airplayAvailable && (
+              <button onClick={onAirplay} aria-label="AirPlay" className="min-w-[44px] min-h-[44px] hidden sm:flex items-center justify-center">
+                <Icon d="M4 5h16v10H4zM8 21l4-5 4 5z" />
+              </button>
+            )}
             {pipAvailable && (
               <button onClick={onTogglePip} aria-label="Picture in picture" className="min-w-[44px] min-h-[44px] hidden sm:flex items-center justify-center">
                 <Icon d="M4 5h16v14H4zM12 12h7v6h-7z" className={`w-5 h-5 ${pipActive ? 'stroke-red' : 'stroke-white'}`} />

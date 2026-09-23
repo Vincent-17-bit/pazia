@@ -1,7 +1,7 @@
 const COPY = {
-  terms: { title: 'Terms of Service', body: 'These are placeholder terms for the Pazia demo. Replace with your own legal copy before launch.' },
-  privacy: { title: 'Privacy Policy', body: 'This is placeholder privacy copy for the Pazia demo. Replace with your own legal copy before launch.' },
-  dmca: { title: 'DMCA Policy', body: 'This is a placeholder DMCA policy for the Pazia demo. Replace with your own legal copy before launch.' },
+  terms: { title: 'Terms of Service', body: 'These are placeholder terms for the Netstreamz demo. Replace with your own legal copy before launch.' },
+  privacy: { title: 'Privacy Policy', body: 'This is placeholder privacy copy for the Netstreamz demo. Replace with your own legal copy before launch.' },
+  dmca: { title: 'DMCA Policy', body: 'This is a placeholder DMCA policy for the Netstreamz demo. Replace with your own legal copy before launch.' },
 };
 
 export default function Legal({ page }) {

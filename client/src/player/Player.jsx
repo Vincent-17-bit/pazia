@@ -3,7 +3,10 @@ import PlayerCore from './PlayerCore.jsx';
 import ControlsOverlay from './controls/ControlsOverlay.jsx';
 import SettingsPanel from './controls/SettingsPanel.jsx';
 import SubtitleOverlay from './SubtitleOverlay.jsx';
+import ErrorOverlay from './ErrorOverlay.jsx';
+import BufferingSpinner from './BufferingSpinner.jsx';
 import { useSubtitleSettings, subtitleCssVars } from './hooks/useSubtitleSettings.js';
+import { loadPlayerPrefs, savePlayerPrefs } from './hooks/usePlayerPrefs.js';
 import { parseVtt, getActiveCue } from './utils/vtt.js';
 
 export default function Player({
@@ -15,12 +18,14 @@ export default function Player({
   const hideTimerRef = useRef(null);
   const lastTapRef = useRef({ t: 0, side: null });
   const flashTimerRef = useRef(null);
+  const weakConnTimerRef = useRef(null);
 
+  const initialPrefs = loadPlayerPrefs();
   const [state, setState] = useState({
     playing: false, current: 0, duration: 0, buffered: 0,
-    volume: 1, muted: false, rate: 1,
+    volume: initialPrefs.volume, muted: initialPrefs.muted, rate: 1,
     levels: [], activeLevel: -1, audioTracks: [], activeAudioTrack: -1,
-    pipAvailable: false,
+    pipAvailable: false, buffering: false, fatalError: null, airplayAvailable: false,
   });
   const [controlsVisible, setControlsVisible] = useState(true);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -29,6 +34,7 @@ export default function Player({
   const [pipActive, setPipActive] = useState(false);
   const [flash, setFlash] = useState(null);
   const [dataSaver, setDataSaver] = useState(false);
+  const [weakConnection, setWeakConnection] = useState(false);
   const [activeSubtitleLang, setActiveSubtitleLang] = useState('off');
   const [subtitleCues, setSubtitleCues] = useState([]);
 
@@ -39,8 +45,13 @@ export default function Player({
   const showControls = useCallback(() => {
     setControlsVisible(true);
     clearTimeout(hideTimerRef.current);
-    if (!settingsOpen) hideTimerRef.current = setTimeout(() => setControlsVisible(false), 3000);
+    if (!settingsOpen) hideTimerRef.current = setTimeout(() => {
+      setControlsVisible((v) => (stateRef.current.playing ? false : v));
+    }, 3000);
   }, [settingsOpen]);
+
+  const stateRef = useRef(state);
+  useEffect(() => { stateRef.current = state; }, [state]);
 
   useEffect(() => {
     if (settingsOpen) { clearTimeout(hideTimerRef.current); setControlsVisible(true); }
@@ -70,6 +81,17 @@ export default function Player({
     }
   }, [state.current, state.duration, onNearEnd]);
 
+  // weak-connection toast: only meaningful on Auto (adaptive) quality
+  useEffect(() => {
+    if (state.buffering && state.activeLevel === -1) {
+      weakConnTimerRef.current = setTimeout(() => setWeakConnection(true), 5000);
+    } else {
+      clearTimeout(weakConnTimerRef.current);
+      setWeakConnection(false);
+    }
+    return () => clearTimeout(weakConnTimerRef.current);
+  }, [state.buffering, state.activeLevel]);
+
   function handleSaveNow(pos, dur, final, keepalive) {
     onProgress?.(pos, dur, keepalive);
   }
@@ -77,11 +99,23 @@ export default function Player({
   function togglePlay() { state.playing ? coreRef.current?.pause() : coreRef.current?.play(); }
   function seekTo(t) { coreRef.current?.seekTo(t); }
   function seekBy(delta) { coreRef.current?.seekTo(Math.max(0, Math.min(state.duration, state.current + delta))); }
-  function setVolume(v) { setState((s) => ({ ...s, volume: v, muted: false })); coreRef.current?.setVolume(v); coreRef.current?.setMuted(false); }
-  function toggleMute() { const m = !state.muted; setState((s) => ({ ...s, muted: m })); coreRef.current?.setMuted(m); }
+  function setVolume(v) {
+    setState((s) => ({ ...s, volume: v, muted: false }));
+    coreRef.current?.setVolume(v);
+    coreRef.current?.setMuted(false);
+    savePlayerPrefs({ volume: v, muted: false });
+  }
+  function toggleMute() {
+    const m = !state.muted;
+    setState((s) => ({ ...s, muted: m }));
+    coreRef.current?.setMuted(m);
+    savePlayerPrefs({ volume: state.volume, muted: m });
+  }
   function setRate(r) { setState((s) => ({ ...s, rate: r })); coreRef.current?.setRate(r); }
   function setQuality(i) { coreRef.current?.setQuality(i); }
   function setAudioTrack(i) { coreRef.current?.setAudioTrack(i); }
+  function toggleDataSaver(on) { setDataSaver(on); coreRef.current?.setDataSaverCap(on); }
+  function retry() { setState((s) => ({ ...s, fatalError: null })); coreRef.current?.retry(); }
 
   function toggleFullscreen() {
     if (!document.fullscreenElement) containerRef.current?.requestFullscreen?.().catch(() => {});
@@ -97,6 +131,7 @@ export default function Player({
     if (document.pictureInPictureElement) document.exitPictureInPicture?.();
     else coreRef.current?.getVideoEl?.()?.requestPictureInPicture?.().catch(() => {});
   }
+  function toggleAirplay() { coreRef.current?.showAirplayPicker?.(); }
   useEffect(() => {
     const video = coreRef.current?.getVideoEl?.();
     if (!video) return;
@@ -151,6 +186,8 @@ export default function Player({
     }
   }
 
+  const showSkipIntro = source.introEnd && state.current < source.introEnd && state.current < 90;
+
   return (
     <div
       ref={containerRef}
@@ -170,7 +207,18 @@ export default function Player({
         />
       </div>
 
+      {state.buffering && !state.fatalError && <BufferingSpinner weakConnection={weakConnection} />}
+
       <SubtitleOverlay text={activeCue?.text} controlsVisible={controlsVisible} />
+
+      {showSkipIntro && !settingsOpen && (
+        <button
+          onClick={() => seekTo(source.introEnd)}
+          className="absolute bottom-28 right-5 z-20 bg-surface/90 border border-line rounded-md px-4 py-2 text-sm font-semibold"
+        >
+          Skip Intro
+        </button>
+      )}
 
       <ControlsOverlay
         visible={controlsVisible}
@@ -196,6 +244,9 @@ export default function Player({
         pipAvailable={state.pipAvailable}
         pipActive={pipActive}
         onTogglePip={togglePip}
+        airplayAvailable={state.airplayAvailable}
+        onAirplay={toggleAirplay}
+        qualityLabel={dataSaver ? 'Saver' : state.activeLevel === -1 ? 'Auto' : `${state.levels[state.activeLevel]?.height || ''}p`}
         showNext={showNext && !settingsOpen}
         nextCountdown={nextCountdown}
         onPlayNext={onPlayNext}
@@ -221,9 +272,11 @@ export default function Player({
           activeLevel={state.activeLevel}
           onQualityChange={setQuality}
           dataSaver={dataSaver}
-          onDataSaverChange={setDataSaver}
+          onDataSaverChange={toggleDataSaver}
         />
       )}
+
+      {state.fatalError && <ErrorOverlay message={state.fatalError} onRetry={retry} onBack={onBack} />}
     </div>
   );
 }

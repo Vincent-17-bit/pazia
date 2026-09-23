@@ -207,22 +207,22 @@ export default function SettingsPanel({
               Auto
             </label>
             {levels.map((lvl, i) => (
-              <label key={i} className="flex items-center gap-2 py-1 text-sm">
-                <input type="radio" name="q" checked={!dataSaver && activeLevel === i} onChange={() => { onDataSaverChange(false); onQualityChange(i); }} className="accent-red" />
-                {lvl.height}p
+              <label key={i} className="flex items-center justify-between gap-2 py-1 text-sm">
+                <span className="flex items-center gap-2">
+                  <input type="radio" name="q" checked={!dataSaver && activeLevel === i} onChange={() => { onDataSaverChange(false); onQualityChange(i); }} className="accent-red" />
+                  {lvl.height}p
+                </span>
+                {lvl.bitrate > 0 && <span className="text-[11px] text-white/40">{(lvl.bitrate * 3600 / 8 / 1e9).toFixed(1)} GB/hr</span>}
               </label>
             ))}
             <label className="flex items-center gap-2 py-1.5 text-sm mt-1 border-t border-line pt-2">
               <input
                 type="checkbox"
                 checked={dataSaver}
-                onChange={(e) => {
-                  onDataSaverChange(e.target.checked);
-                  if (e.target.checked) onQualityChange(levels.length - 1);
-                }}
+                onChange={(e) => onDataSaverChange(e.target.checked)}
                 className="accent-red"
               />
-              Data Saver (lowest quality)
+              Data Saver (caps to lowest renditions)
             </label>
           </section>
         )}

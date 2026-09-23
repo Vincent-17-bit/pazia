@@ -11,6 +11,7 @@ const PlayerCore = forwardRef(function PlayerCore(
   const ytIntervalRef = useRef(null);
   const currentRef = useRef(0);
   const durationRef = useRef(0);
+  const recoveryAttemptsRef = useRef(0);
   const isYoutube = source.type === 'youtube';
 
   function emit(patch) {
@@ -53,6 +54,19 @@ const PlayerCore = forwardRef(function PlayerCore(
     setAudioTrack(index) {
       if (hlsRef.current) hlsRef.current.audioTrack = index;
     },
+    setDataSaverCap(on) {
+      if (hlsRef.current) hlsRef.current.autoLevelCapping = on ? Math.min(1, (hlsRef.current.levels?.length || 1) - 1) : -1;
+    },
+    showAirplayPicker() {
+      videoRef.current?.webkitShowPlaybackTargetPicker?.();
+    },
+    retry() {
+      emit({ fatalError: null });
+      if (isYoutube) return;
+      const video = videoRef.current;
+      if (hlsRef.current) { hlsRef.current.startLoad(); return; }
+      if (video) { video.load(); video.play().catch(() => {}); }
+    },
     getVideoEl: () => videoRef.current,
     saveNow,
   }));
@@ -79,6 +93,14 @@ const PlayerCore = forwardRef(function PlayerCore(
         });
         hls.on(Hls.Events.LEVEL_SWITCHED, (_, data) => emit({ activeLevel: data.level }));
         hls.on(Hls.Events.AUDIO_TRACK_SWITCHED, (_, data) => emit({ activeAudioTrack: data.id }));
+        hls.on(Hls.Events.ERROR, (_, data) => {
+          if (!data.fatal) return;
+          recoveryAttemptsRef.current += 1;
+          if (recoveryAttemptsRef.current > 3) { emit({ fatalError: 'Playback failed for this source.' }); return; }
+          if (data.type === Hls.ErrorTypes.NETWORK_ERROR) hls.startLoad();
+          else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) hls.recoverMediaError();
+          else emit({ fatalError: 'Playback failed for this source.' });
+        });
         hlsRef.current = hls;
         cleanup = () => hls.destroy();
       });
@@ -107,6 +129,10 @@ const PlayerCore = forwardRef(function PlayerCore(
     function onPause() { emit({ playing: false }); saveNow(); }
     function onEndedEvt() { saveNow(true); onEnded?.(); }
     function onVolume() { emit({ volume: video.volume, muted: video.muted }); }
+    function onWaiting() { emit({ buffering: true }); }
+    function onPlaying() { emit({ buffering: false }); }
+    function onError() { emit({ fatalError: 'Playback failed for this source.' }); }
+    function onAirplay(e) { emit({ airplayAvailable: e.availability === 'available' }); }
 
     video.addEventListener('loadedmetadata', onLoaded);
     video.addEventListener('timeupdate', onTime);
@@ -114,6 +140,10 @@ const PlayerCore = forwardRef(function PlayerCore(
     video.addEventListener('pause', onPause);
     video.addEventListener('ended', onEndedEvt);
     video.addEventListener('volumechange', onVolume);
+    video.addEventListener('waiting', onWaiting);
+    video.addEventListener('playing', onPlaying);
+    video.addEventListener('error', onError);
+    video.addEventListener('webkitplaybacktargetavailabilitychanged', onAirplay);
     return () => {
       video.removeEventListener('loadedmetadata', onLoaded);
       video.removeEventListener('timeupdate', onTime);
@@ -121,6 +151,10 @@ const PlayerCore = forwardRef(function PlayerCore(
       video.removeEventListener('pause', onPause);
       video.removeEventListener('ended', onEndedEvt);
       video.removeEventListener('volumechange', onVolume);
+      video.removeEventListener('waiting', onWaiting);
+      video.removeEventListener('playing', onPlaying);
+      video.removeEventListener('error', onError);
+      video.removeEventListener('webkitplaybacktargetavailabilitychanged', onAirplay);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isYoutube, startAt]);
