@@ -3,6 +3,9 @@ import { tmdbFetch, hasTmdbKey } from '../services/tmdb.js';
 import { normalizeItem, normalizeList } from '../services/normalize.js';
 import { cached } from '../services/cache.js';
 import { resolveSource } from '../providers/index.js';
+import { getExternalItem } from '../services/externalCatalog.js';
+import { resolvePlayback } from '../services/external/index.js';
+import { fallbackDetail } from '../services/enrichment/index.js';
 import {
   DEMO_ITEMS_BY_ID,
   DEMO_CAST,
@@ -17,6 +20,36 @@ const TTL = 30 * 60 * 1000;
 
 router.get('/:mediaType/:id', async (req, res) => {
   const { mediaType, id } = req.params;
+
+  if (mediaType === 'info') {
+    const [source, refId] = id.split(':');
+    try {
+      const detail = await fallbackDetail(source, refId);
+      if (!detail) return res.status(404).json({ error: 'not_found' });
+      return res.json({
+        id, mediaType: 'info', source,
+        title: detail.title, overview: detail.overview || '',
+        posterPath: detail.posterPath || null, backdropPath: detail.posterPath || null,
+        year: detail.year || null, ratings: detail.ratings || null,
+        hasLicensedSource: false, cast: [], crew: [], trailers: [], similar: [],
+      });
+    } catch (err) {
+      return res.status(502).json({ error: 'info_title_failed', message: err.message });
+    }
+  }
+
+  if (mediaType === 'external') {
+    const [source, refId] = id.split(':');
+    try {
+      const item = await getExternalItem(source, refId);
+      if (!item) return res.status(404).json({ error: 'not_found' });
+      const playback = item.playback || (await resolvePlayback(source, refId));
+      return res.json({ ...item, playback, hasLicensedSource: true, cast: [], crew: [], trailers: [], similar: [] });
+    } catch (err) {
+      return res.status(502).json({ error: 'external_title_failed', message: err.message });
+    }
+  }
+
   if (!['movie', 'tv'].includes(mediaType)) return res.status(400).json({ error: 'bad_media_type' });
 
   if (!hasTmdbKey()) {

@@ -50,6 +50,14 @@ async function fetchByKeywordQuery(mediaType, keywordQuery, extraParams = {}, pa
   return normalizeList(data.results, mediaType);
 }
 
+async function fetchByKeywordQueries(mediaType, keywordQueries, extraParams = {}, page) {
+  const idLists = await Promise.all(keywordQueries.map(resolveKeywordIds));
+  const ids = [...new Set(idLists.flat())];
+  if (!ids.length) return [];
+  const data = await tmdbFetch(`/discover/${mediaType}`, { with_keywords: ids.join('|'), ...extraParams, page });
+  return normalizeList(data.results, mediaType);
+}
+
 async function fetchMulti(paramsByType, page) {
   const lists = await Promise.all(
     Object.entries(paramsByType).map(([mediaType, params]) => fetchDiscover(mediaType, params, page))
@@ -69,6 +77,7 @@ async function resolveMapping(mapping, page = 1) {
   if (mapping.source === 'discover_swahili') return fetchSwahili(page);
   if (mapping.source === 'discover_keyword') return fetchByKeyword(mapping.mediaType, page);
   if (mapping.source === 'discover_keyword_query') return fetchByKeywordQuery(mapping.mediaType, mapping.keywordQuery, mapping.params, page);
+  if (mapping.source === 'discover_keyword_queries') return fetchByKeywordQueries(mapping.mediaType, mapping.keywordQueries, mapping.params, page);
   if (mapping.source === 'discover_multi') return fetchMulti(mapping.paramsByType, page);
   if (mapping.source === 'discover_merge') return fetchMerge(mapping.mediaType, mapping.paramsList, page);
   return [];

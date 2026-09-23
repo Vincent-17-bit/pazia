@@ -3,6 +3,7 @@ import { tmdbFetch, hasTmdbKey } from '../services/tmdb.js';
 import { normalizeList } from '../services/normalize.js';
 import { cached } from '../services/cache.js';
 import { DEMO_ROWS, TOP_SEARCHES } from '../data/demo.js';
+import { fallbackSearch } from '../services/enrichment/index.js';
 
 const router = Router();
 const TTL = 15 * 60 * 1000;
@@ -29,7 +30,8 @@ router.get('/', async (req, res) => {
   }
 
   if (!hasTmdbKey()) {
-    return res.json({ items: demoSearch(q, genre, year, minRating), topSearches: TOP_SEARCHES });
+    const items = demoSearch(q, genre, year, minRating);
+    return res.json({ items: await withFallback(q, items), topSearches: TOP_SEARCHES });
   }
 
   try {
@@ -52,10 +54,17 @@ router.get('/', async (req, res) => {
       });
       return normalizeList(data.results, mediaType);
     });
-    res.json({ items, topSearches: TOP_SEARCHES });
+    res.json({ items: await withFallback(q, items), topSearches: TOP_SEARCHES });
   } catch (err) {
     res.status(502).json({ error: 'search_failed', message: err.message });
   }
 });
+
+async function withFallback(q, items) {
+  if (!q || items.length >= 8) return items;
+  const extra = await fallbackSearch(q).catch(() => []);
+  const seen = new Set(items.map((i) => i.title?.toLowerCase()));
+  return [...items, ...extra.filter((e) => !seen.has(e.title?.toLowerCase()))];
+}
 
 export default router;

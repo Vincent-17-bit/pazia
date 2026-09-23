@@ -20,6 +20,7 @@ import progressRoute from './routes/progress.js';
 import watchlistRoute from './routes/watchlist.js';
 import historyRoute from './routes/history.js';
 import continueWatchingRoute from './routes/continueWatching.js';
+import externalRoute from './routes/external.js';
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -43,6 +44,7 @@ app.use('/api/progress', progressRoute);
 app.use('/api/watchlist', watchlistRoute);
 app.use('/api/history', historyRoute);
 app.use('/api/continue-watching', continueWatchingRoute);
+app.use('/api/external', externalRoute);
 
 app.use((err, req, res, next) => {
   console.error(err);
