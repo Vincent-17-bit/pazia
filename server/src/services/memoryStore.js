@@ -1,6 +1,7 @@
 const progress = new Map();
 const watchlist = new Map();
 const history = new Map();
+const ratings = new Map();
 const contentSources = new Map();
 
 function key(mediaType, tmdbId, season, episode) {
@@ -54,6 +55,21 @@ export const memHistory = {
   },
   list(userId) {
     return history.get(userId) || [];
+  },
+};
+
+export const memRatings = {
+  set(userId, mediaType, tmdbId, value) {
+    const k = `${userId}::${mediaType}:${tmdbId}`;
+    const doc = { userId, mediaType, tmdbId, value, createdAt: Date.now() };
+    ratings.set(k, doc);
+    return doc;
+  },
+  remove(userId, mediaType, tmdbId) {
+    ratings.delete(`${userId}::${mediaType}:${tmdbId}`);
+  },
+  list(userId) {
+    return [...ratings.values()].filter((r) => r.userId === userId);
   },
 };
 

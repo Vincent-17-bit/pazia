@@ -54,6 +54,9 @@ export const api = {
   watchlist: () => request('/watchlist'),
   addToWatchlist: (mediaType, tmdbId) => request('/watchlist', { method: 'POST', body: JSON.stringify({ mediaType, tmdbId }) }),
   removeFromWatchlist: (mediaType, tmdbId) => request(`/watchlist/${mediaType}/${tmdbId}`, { method: 'DELETE' }),
+  ratings: () => request('/ratings'),
+  setRating: (mediaType, tmdbId, value) => request('/ratings', { method: 'POST', body: JSON.stringify({ mediaType, tmdbId, value }) }),
+  removeRating: (mediaType, tmdbId) => request(`/ratings/${mediaType}/${tmdbId}`, { method: 'DELETE' }),
   history: () => request('/history'),
   removeFromHistory: (mediaType, tmdbId) => request(`/history/${mediaType}/${tmdbId}`, { method: 'DELETE' }),
 };

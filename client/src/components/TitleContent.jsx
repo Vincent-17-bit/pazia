@@ -7,6 +7,7 @@ import TitleHeroMedia from './TitleHeroMedia.jsx';
 import EpisodeList from './EpisodeList.jsx';
 import Row from './Row.jsx';
 import { useMyList } from '../context/MyListContext.jsx';
+import { useRatings } from '../context/RatingsContext.jsx';
 
 function DownloadMenu({ item, onClose }) {
   const qualities = item.downloadQualities?.length
@@ -32,6 +33,7 @@ function DownloadMenu({ item, onClose }) {
 export default function TitleContent({ mediaType, id, variant = 'page', onClose, onNavigateTitle }) {
   const navigate = useNavigate();
   const { has, toggle } = useMyList();
+  const { get: getRating, rate } = useRatings();
   const [season, setSeason] = useState(null);
   const [expanded, setExpanded] = useState(false);
   const [showMore, setShowMore] = useState(false);
@@ -78,6 +80,7 @@ export default function TitleContent({ mediaType, id, variant = 'page', onClose,
 
   const item = query.data;
   const inList = has(item.mediaType, item.id);
+  const rating = getRating(item.mediaType, item.id);
   const heroHeight = variant === 'modal' ? 'h-[60vh] md:h-[60vh] max-md:h-[40vh]' : 'h-[42vh] min-h-[280px]';
 
   function goPlay(seasonNumber, episodeNumber) {
@@ -179,6 +182,33 @@ export default function TitleContent({ mediaType, id, variant = 'page', onClose,
           >
             {inList ? '✓ Added' : '+ My List'}
           </button>
+
+          <div className="flex items-center gap-1.5 flex-none">
+            <button
+              onClick={() => rate(item.mediaType, item.id, 'up')}
+              aria-label="Thumbs up"
+              aria-pressed={rating === 'up'}
+              className={`w-10 h-10 rounded-full border flex items-center justify-center text-base ${rating === 'up' ? 'bg-red border-red' : 'bg-white/10 border-white/25'}`}
+            >
+              👍
+            </button>
+            <button
+              onClick={() => rate(item.mediaType, item.id, 'down')}
+              aria-label="Thumbs down"
+              aria-pressed={rating === 'down'}
+              className={`w-10 h-10 rounded-full border flex items-center justify-center text-base ${rating === 'down' ? 'bg-red border-red' : 'bg-white/10 border-white/25'}`}
+            >
+              👎
+            </button>
+            <button
+              onClick={() => rate(item.mediaType, item.id, 'love')}
+              aria-label="Loved it"
+              aria-pressed={rating === 'love'}
+              className={`w-10 h-10 rounded-full border flex items-center justify-center text-base ${rating === 'love' ? 'bg-red border-red' : 'bg-white/10 border-white/25'}`}
+            >
+              ❤️
+            </button>
+          </div>
 
           <button onClick={onShare} className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold bg-white/10 border border-white/25 flex-none">
             🔗 Share

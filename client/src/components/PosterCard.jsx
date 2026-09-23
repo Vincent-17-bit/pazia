@@ -1,10 +1,9 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
 import { api } from '../lib/api.js';
 import { useMyList } from '../context/MyListContext.jsx';
+import { useRatings } from '../context/RatingsContext.jsx';
 import { useHoverIntent } from '../hooks/useHoverIntent.js';
-import { getRating, setRating } from '../lib/localRatings.js';
 
 const GRADIENTS = [
   ['#3a0d10', '#0b0b0f'], ['#4a1116', '#1a0508'], ['#2a0a10', '#0b0b0f'],
@@ -19,8 +18,9 @@ export default function PosterCard({ item, wide = false, onItemClick }) {
   const location = useLocation();
   const navigate = useNavigate();
   const { has, toggle } = useMyList();
+  const { get: getRating, rate } = useRatings();
   const { active: previewing, onEnter, onLeave, supportsHover } = useHoverIntent(500);
-  const [rating, setLocalRating] = useState(() => getRating(item.mediaType, item.id));
+  const rating = getRating(item.mediaType, item.id);
 
   const bg = item.posterPath ? `url(${item.posterPath})` : grad(item.colorSeed ?? item.id?.length ?? 0);
   const to = `/title/${item.mediaType}/${item.id}`;
@@ -53,7 +53,7 @@ export default function PosterCard({ item, wide = false, onItemClick }) {
   function onRate(e, value) {
     e.preventDefault();
     e.stopPropagation();
-    setLocalRating(setRating(item.mediaType, item.id, value));
+    rate(item.mediaType, item.id, value);
   }
 
   return (
