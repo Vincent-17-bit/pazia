@@ -12,6 +12,8 @@ const schema = new mongoose.Schema(
     videoId: { type: String },
     subtitles: [{ lang: String, url: String }],
     license: { type: String, default: 'licensed' },
+    downloadable: { type: Boolean, default: false },
+    downloadQualities: [{ label: String, url: String, sizeMB: Number }],
   },
   { versionKey: false }
 );

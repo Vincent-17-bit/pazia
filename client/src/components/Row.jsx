@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import PosterCard from './PosterCard.jsx';
 import SkeletonRow from './SkeletonRow.jsx';
 
-export default function Row({ title, items, loading, lazy = false }) {
+export default function Row({ title, items, loading, lazy = false, onItemClick }) {
   const sectionRef = useRef(null);
   const trackRef = useRef(null);
   const [visible, setVisible] = useState(!lazy);
@@ -42,7 +42,7 @@ export default function Row({ title, items, loading, lazy = false }) {
       ) : (
         <div ref={trackRef} className="flex gap-3 overflow-x-auto no-scrollbar px-5 pb-1.5">
           {items?.map((item) => (
-            <PosterCard key={`${item.mediaType}-${item.id}`} item={item} />
+            <PosterCard key={`${item.mediaType}-${item.id}`} item={item} onItemClick={onItemClick} />
           ))}
         </div>
       )}

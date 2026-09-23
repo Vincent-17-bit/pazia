@@ -1,8 +1,9 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { grad } from './PosterCard.jsx';
 import TitleStrip from './TitleStrip.jsx';
 
 export default function Hero({ featured, strip, onStripSelect, kicker }) {
+  const location = useLocation();
   if (!featured) {
     return <div className="h-[64vh] min-h-[420px] bg-surface animate-pulse" />;
   }
@@ -34,6 +35,7 @@ export default function Hero({ featured, strip, onStripSelect, kicker }) {
         <div className="flex gap-3 mb-5">
           <Link
             to={`/title/${featured.mediaType}/${featured.id}`}
+            state={{ background: location }}
             className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold bg-white text-bg"
           >
             <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>

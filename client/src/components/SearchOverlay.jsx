@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { grad } from './PosterCard.jsx';
 import { api } from '../lib/api.js';
 
@@ -24,6 +24,7 @@ export default function SearchOverlay({ open, onClose, onSelect }) {
   const timerRef = useRef(null);
   const recognitionRef = useRef(null);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const SpeechRecognition = typeof window !== 'undefined' && (window.SpeechRecognition || window.webkitSpeechRecognition);
 
@@ -79,7 +80,7 @@ export default function SearchOverlay({ open, onClose, onSelect }) {
   function goToTitle(item) {
     pushRecent(q);
     onSelect ? onSelect() : onClose();
-    navigate(`/title/${item.mediaType}/${item.id}`);
+    navigate(`/title/${item.mediaType}/${item.id}`, { state: { background: location } });
   }
 
   useEffect(() => {

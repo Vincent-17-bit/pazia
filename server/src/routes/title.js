@@ -58,6 +58,8 @@ router.get('/:mediaType/:id', async (req, res) => {
     const source = await resolveSource(mediaType, id, null, null);
     return res.json({
       ...item,
+      downloadable: Boolean(source?.downloadable),
+      downloadQualities: source?.downloadQualities || [],
       cast: DEMO_CAST,
       crew: [{ name: 'J. Mwangi', job: 'Director' }],
       trailers: [],
@@ -82,6 +84,10 @@ router.get('/:mediaType/:id', async (req, res) => {
         ...normalizeItem(main, mediaType),
         genres: (main.genres || []).map((g) => g.name),
         runtime: main.runtime || main.episode_run_time?.[0] || null,
+        originalLanguage: main.original_language || null,
+        productionCountries: (main.production_countries || []).map((c) => c.name),
+        budget: main.budget || null,
+        revenue: main.revenue || null,
         cast: (credits.cast || []).slice(0, 12).map((c) => ({
           name: c.name,
           character: c.character,
@@ -90,9 +96,13 @@ router.get('/:mediaType/:id', async (req, res) => {
         crew: (credits.crew || [])
           .filter((c) => ['Director', 'Creator'].includes(c.job))
           .map((c) => ({ name: c.name, job: c.job })),
-        trailers: (videos.results || [])
-          .filter((v) => v.site === 'YouTube' && v.type === 'Trailer')
-          .map((v) => ({ key: v.key, name: v.name })),
+        trailers: (() => {
+          const vids = videos.results || [];
+          const trailer = vids.find((v) => v.site === 'YouTube' && v.type === 'Trailer');
+          const teaser = vids.find((v) => v.site === 'YouTube' && v.type === 'Teaser');
+          const pick = trailer || teaser;
+          return pick ? [{ key: pick.key, name: pick.name }] : [];
+        })(),
         watchProviders: {
           KE: providers.results?.KE || null,
           US: providers.results?.US || null,
@@ -106,10 +116,31 @@ router.get('/:mediaType/:id', async (req, res) => {
                 name: s.name,
               }))
             : undefined,
+        nextEpisode: mediaType === 'tv' && main.next_episode_to_air
+          ? {
+              seasonNumber: main.next_episode_to_air.season_number,
+              episodeNumber: main.next_episode_to_air.episode_number,
+              name: main.next_episode_to_air.name,
+              airDate: main.next_episode_to_air.air_date,
+            }
+          : null,
+        lastEpisode: mediaType === 'tv' && main.last_episode_to_air
+          ? {
+              seasonNumber: main.last_episode_to_air.season_number,
+              episodeNumber: main.last_episode_to_air.episode_number,
+              name: main.last_episode_to_air.name,
+              airDate: main.last_episode_to_air.air_date,
+            }
+          : null,
       };
     });
     const source = await resolveSource(mediaType, id, null, null);
-    res.json({ ...detail, hasLicensedSource: Boolean(source) });
+    res.json({
+      ...detail,
+      hasLicensedSource: Boolean(source),
+      downloadable: Boolean(source?.downloadable),
+      downloadQualities: source?.downloadQualities || [],
+    });
   } catch (err) {
     res.status(502).json({ error: 'title_failed', message: err.message });
   }

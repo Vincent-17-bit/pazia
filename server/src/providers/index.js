@@ -23,5 +23,7 @@ export async function resolveSource(mediaType, tmdbId, season, episode) {
     videoId: doc.videoId || undefined,
     subtitles: doc.subtitles || [],
     license: doc.license || 'licensed',
+    downloadable: Boolean(doc.downloadable),
+    downloadQualities: doc.downloadQualities || [],
   };
 }

@@ -8,6 +8,7 @@ import Footer from './components/Footer.jsx';
 import Home from './pages/Home.jsx';
 import Search from './pages/Search.jsx';
 import TitleDetail from './pages/TitleDetail.jsx';
+import TitleModal from './components/TitleModal.jsx';
 import Watch from './pages/Watch.jsx';
 import MyList from './pages/MyList.jsx';
 import History from './pages/History.jsx';
@@ -20,6 +21,7 @@ export default function App() {
   const location = useLocation();
   const navigate = useNavigate();
   const isPlayer = location.pathname.startsWith('/watch/');
+  const background = location.state?.background;
 
   if (isPlayer) {
     return (
@@ -33,7 +35,7 @@ export default function App() {
     <>
       <Header onMenuClick={() => setMenuOpen(true)} />
       <main className="pb-20 md:pb-0">
-        <Routes>
+        <Routes location={background || location}>
           <Route path="/" element={<Home selectedCategory={selectedCategory} />} />
           <Route path="/search" element={<Search />} />
           <Route path="/title/:mediaType/:id" element={<TitleDetail />} />
@@ -45,6 +47,11 @@ export default function App() {
         </Routes>
         <Footer />
       </main>
+      {background && (
+        <Routes location={location}>
+          <Route path="/title/:mediaType/:id" element={<TitleModal background={background} />} />
+        </Routes>
+      )}
       <BottomNav />
       <MenuOverlay
         open={menuOpen}

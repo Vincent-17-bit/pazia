@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 const GRADIENTS = [
   ['#3a0d10', '#0b0b0f'], ['#4a1116', '#1a0508'], ['#2a0a10', '#0b0b0f'],
@@ -9,11 +9,15 @@ function grad(seed = 0) {
   return `linear-gradient(135deg, ${a}, ${b})`;
 }
 
-export default function PosterCard({ item, wide = false }) {
+export default function PosterCard({ item, wide = false, onItemClick }) {
+  const location = useLocation();
   const bg = item.posterPath ? `url(${item.posterPath})` : grad(item.colorSeed ?? item.id?.length ?? 0);
+  const to = `/title/${item.mediaType}/${item.id}`;
   return (
     <Link
-      to={`/title/${item.mediaType}/${item.id}`}
+      to={to}
+      state={onItemClick ? undefined : { background: location }}
+      onClick={onItemClick ? (e) => { e.preventDefault(); onItemClick(item); } : undefined}
       className="group flex-none"
       style={{ width: wide ? 210 : 132 }}
     >
