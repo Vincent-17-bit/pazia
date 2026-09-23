@@ -33,6 +33,7 @@ export const api = {
   hero: (tab) => request(`/hero?tab=${encodeURIComponent(tab)}`),
   browse: (tab, page = 1) => request(`/browse?tab=${encodeURIComponent(tab)}&page=${page}`),
   rows: (keys) => request(`/rows?keys=${encodeURIComponent(keys.join(','))}`),
+  externalRows: (keys) => request(`/external/rows?keys=${encodeURIComponent(keys.join(','))}`),
   search: (params) => request(`/search?${new URLSearchParams(params).toString()}`),
   title: (mediaType, id) => request(`/title/${mediaType}/${id}`),
   season: (id, seasonNumber, page = 1) => request(`/title/tv/${id}/season/${seasonNumber}?page=${page}`),

@@ -69,6 +69,15 @@ const ROW_KEYS = [
   ['reality_rush', 'Reality Rush'],
 ];
 
+const EXTERNAL_ROW_KEYS = [
+  ['free_classics', 'Free Classics'],
+  ['prelinger_picks', 'Prelinger Picks'],
+  ['nasa_films', 'NASA Films'],
+  ['blender_open_movies', 'Blender Open Movies'],
+  ['commons_shorts', 'Wikimedia Commons Shorts'],
+  ['vimeo_creative_commons', 'Vimeo Creative Commons'],
+];
+
 export default function Home({ selectedCategory }) {
   const [params, setParams] = useSearchParams();
   const tab = params.get('tab') || 'home';
@@ -89,8 +98,16 @@ export default function Home({ selectedCategory }) {
     queryFn: () => api.rows(ROW_KEYS.map(([k]) => k)),
   });
 
+  const externalRowsQuery = useQuery({
+    queryKey: ['externalRows'],
+    queryFn: () => api.externalRows(EXTERNAL_ROW_KEYS.map(([k]) => k)),
+  });
+
   const cw = useContinueWatching();
-  const rowsByKey = Object.fromEntries((rowsQuery.data?.rows || []).map((r) => [r.key, r.items]));
+  const rowsByKey = Object.fromEntries([
+    ...(rowsQuery.data?.rows || []).map((r) => [r.key, r.items]),
+    ...(externalRowsQuery.data?.rows || []).map((r) => [r.key, r.items]),
+  ]);
   const selectedItems = selectedCategory ? rowsByKey[selectedCategory.rowKey] : null;
 
   useEffect(() => {
@@ -124,6 +141,9 @@ export default function Home({ selectedCategory }) {
         <Row title={TAB_LABEL[tab]} items={browseQuery.data?.items} loading={browseQuery.isLoading} />
         {orderedRowKeys.map(([key, label]) => (
           <Row key={key} title={label} items={rowsByKey[key]} loading={rowsQuery.isLoading} lazy />
+        ))}
+        {EXTERNAL_ROW_KEYS.map(([key, label]) => (
+          <Row key={key} title={label} items={rowsByKey[key]} loading={externalRowsQuery.isLoading} lazy />
         ))}
       </div>
     </>
