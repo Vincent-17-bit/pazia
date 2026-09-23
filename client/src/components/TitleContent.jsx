@@ -30,6 +30,34 @@ function DownloadMenu({ item, onClose }) {
   );
 }
 
+function CertificationBadge({ rating, reason }) {
+  const [open, setOpen] = useState(false);
+  if (!reason) {
+    return <span className="text-[11px] border border-line rounded px-1.5">{rating}</span>;
+  }
+  return (
+    <span className="relative group inline-block">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        onBlur={() => setOpen(false)}
+        aria-expanded={open}
+        className="text-[11px] border border-line rounded px-1.5 text-ink"
+      >
+        {rating}
+      </button>
+      <span
+        role="tooltip"
+        className={`absolute z-20 bottom-full left-1/2 -translate-x-1/2 mb-1.5 whitespace-nowrap bg-surface border border-line rounded-md px-2.5 py-1.5 text-[11px] text-inkdim ${
+          open ? 'block' : 'hidden md:group-hover:block'
+        }`}
+      >
+        {reason}
+      </span>
+    </span>
+  );
+}
+
 export default function TitleContent({ mediaType, id, variant = 'page', onClose, onNavigateTitle }) {
   const navigate = useNavigate();
   const { has, toggle } = useMyList();
@@ -141,7 +169,7 @@ export default function TitleContent({ mediaType, id, variant = 'page', onClose,
           <span>★ {item.rating}</span><span>·</span><span>{item.year}</span>
           {item.runtime && <><span>·</span><span>{item.runtime}m</span></>}
           {item.mediaType === 'tv' && item.seasons?.length && <><span>·</span><span>{item.seasons.length} season{item.seasons.length > 1 ? 's' : ''}</span></>}
-          {item.certification && <span className="text-[11px] border border-line rounded px-1.5">{item.certification}</span>}
+          {item.certification && <CertificationBadge rating={item.certification} reason={item.certificationReason} />}
         </div>
         <div className="flex flex-wrap gap-2 mb-4">
           {item.genres?.map((g) => (

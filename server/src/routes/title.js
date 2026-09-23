@@ -17,6 +17,38 @@ import {
 
 const router = Router();
 const TTL = 30 * 60 * 1000;
+const REGION_PREFERENCE = ['KE', 'US', 'GB'];
+
+function pickCertification(mediaType, certs) {
+  const results = certs?.results;
+  if (!Array.isArray(results) || !results.length) return { certification: null, certificationReason: null };
+
+  function fromRow(row) {
+    if (!row) return null;
+    if (mediaType === 'movie') {
+      const withCert = (row.release_dates || []).find((rd) => rd.certification);
+      return withCert ? { certification: withCert.certification, descriptors: withCert.descriptors || [] } : null;
+    }
+    return row.rating ? { certification: row.rating, descriptors: row.descriptors || [] } : null;
+  }
+
+  let picked = null;
+  for (const country of REGION_PREFERENCE) {
+    picked = fromRow(results.find((r) => r.iso_3166_1 === country));
+    if (picked) break;
+  }
+  if (!picked) {
+    for (const row of results) {
+      picked = fromRow(row);
+      if (picked) break;
+    }
+  }
+  if (!picked) return { certification: null, certificationReason: null };
+  return {
+    certification: picked.certification,
+    certificationReason: picked.descriptors.length ? picked.descriptors.join(', ') : null,
+  };
+}
 
 router.get('/:mediaType/:id', async (req, res) => {
   const { mediaType, id } = req.params;
@@ -73,15 +105,17 @@ router.get('/:mediaType/:id', async (req, res) => {
   try {
     const key = `title:${mediaType}:${id}`;
     const detail = await cached(key, TTL, async () => {
-      const [main, credits, videos, providers, similar] = await Promise.all([
+      const [main, credits, videos, providers, similar, certs] = await Promise.all([
         tmdbFetch(`/${mediaType}/${id}`),
         tmdbFetch(`/${mediaType}/${id}/credits`),
         tmdbFetch(`/${mediaType}/${id}/videos`),
         tmdbFetch(`/${mediaType}/${id}/watch/providers`),
         tmdbFetch(`/${mediaType}/${id}/similar`),
+        tmdbFetch(mediaType === 'movie' ? `/movie/${id}/release_dates` : `/tv/${id}/content_ratings`).catch(() => null),
       ]);
       return {
         ...normalizeItem(main, mediaType),
+        ...pickCertification(mediaType, certs),
         genres: (main.genres || []).map((g) => g.name),
         runtime: main.runtime || main.episode_run_time?.[0] || null,
         originalLanguage: main.original_language || null,
