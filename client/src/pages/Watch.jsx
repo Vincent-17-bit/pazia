@@ -38,8 +38,8 @@ export default function Watch() {
   });
 
   const saveProgress = useCallback(
-    (position, duration) => {
-      api.putProgress({ mediaType, tmdbId: id, season, episode, position, duration }).catch(() => {});
+    (position, duration, keepalive) => {
+      api.putProgress({ mediaType, tmdbId: id, season, episode, position, duration }, keepalive).catch(() => {});
     },
     [mediaType, id, season, episode]
   );
@@ -47,6 +47,10 @@ export default function Watch() {
   function onEnded() {
     setEnded(true);
     if (mediaType === 'tv') setShowNext(true);
+  }
+
+  function onNearEnd() {
+    if (mediaType === 'tv' && !ended) setShowNext(true);
   }
 
   useEffect(() => {
@@ -98,26 +102,20 @@ export default function Watch() {
   const subtitle = season ? `S${season} · E${episode}` : null;
 
   return (
-    <>
-      <Player
-        key={`${mediaType}-${id}-${season}-${episode}`}
-        source={sourceQuery.data}
-        startAt={startAt}
-        onProgress={saveProgress}
-        onEnded={onEnded}
-        onBack={goBack}
-        title={title}
-        subtitle={subtitle}
-      />
-      {showNext && (
-        <div className="fixed bottom-24 right-6 z-[210] bg-surface border border-line rounded-xl p-4 w-64">
-          <div className="text-sm font-semibold mb-1">Next Episode in {countdown}s</div>
-          <div className="flex gap-2 mt-3">
-            <button onClick={goToNext} className="flex-1 bg-red rounded-md py-2 text-sm font-semibold">Play now</button>
-            <button onClick={() => setShowNext(false)} className="flex-1 border border-line rounded-md py-2 text-sm">Cancel</button>
-          </div>
-        </div>
-      )}
-    </>
+    <Player
+      key={`${mediaType}-${id}-${season}-${episode}`}
+      source={sourceQuery.data}
+      startAt={startAt}
+      onProgress={saveProgress}
+      onEnded={onEnded}
+      onNearEnd={onNearEnd}
+      onBack={goBack}
+      title={title}
+      subtitle={subtitle}
+      showNext={showNext}
+      nextCountdown={countdown}
+      onPlayNext={goToNext}
+      onCancelNext={() => setShowNext(false)}
+    />
   );
 }

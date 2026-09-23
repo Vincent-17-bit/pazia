@@ -42,3 +42,12 @@ h1, h2, h3, .brand { font-family: 'Poppins', sans-serif; }
   to { transform: translateY(0); }
 }
 .animate-sheet-up { animation: sheet-up 280ms ease-out; }
+
+.player-video-fit video { width: 100%; height: 100%; object-fit: var(--video-fit, contain); }
+
+@keyframes flash-seek {
+  0% { opacity: 0; transform: translateY(-50%) scale(0.9); }
+  20% { opacity: 1; transform: translateY(-50%) scale(1); }
+  100% { opacity: 0; transform: translateY(-50%) scale(1); }
+}
+.animate-flash-seek { animation: flash-seek 500ms ease-out; }

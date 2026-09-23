@@ -49,7 +49,7 @@ export const api = {
     if (episode != null) qs.set('episode', episode);
     return request(`/progress/${mediaType}/${id}?${qs.toString()}`);
   },
-  putProgress: (body) => request('/progress', { method: 'PUT', body: JSON.stringify(body) }),
+  putProgress: (body, keepalive = false) => request('/progress', { method: 'PUT', body: JSON.stringify(body), keepalive }),
   continueWatching: () => request('/continue-watching'),
   watchlist: () => request('/watchlist'),
   addToWatchlist: (mediaType, tmdbId) => request('/watchlist', { method: 'POST', body: JSON.stringify({ mediaType, tmdbId }) }),

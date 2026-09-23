@@ -1,317 +1,229 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import PlayerCore from './PlayerCore.jsx';
+import ControlsOverlay from './controls/ControlsOverlay.jsx';
+import SettingsPanel from './controls/SettingsPanel.jsx';
+import SubtitleOverlay from './SubtitleOverlay.jsx';
+import { useSubtitleSettings, subtitleCssVars } from './hooks/useSubtitleSettings.js';
+import { parseVtt, getActiveCue } from './utils/vtt.js';
 
-function formatTime(s) {
-  if (!isFinite(s)) return '0:00';
-  const m = Math.floor(s / 60);
-  const sec = Math.floor(s % 60).toString().padStart(2, '0');
-  return `${m}:${sec}`;
-}
-
-export default function Player({ source, startAt = 0, onProgress, onEnded, onBack, title, subtitle }) {
+export default function Player({
+  source, startAt = 0, onProgress, onEnded, onBack, title, subtitle,
+  showNext, nextCountdown, onPlayNext, onCancelNext, onNearEnd,
+}) {
+  const coreRef = useRef(null);
   const containerRef = useRef(null);
-  const videoRef = useRef(null);
-  const hlsRef = useRef(null);
   const hideTimerRef = useRef(null);
-  const lastSavedRef = useRef(0);
   const lastTapRef = useRef({ t: 0, side: null });
+  const flashTimerRef = useRef(null);
 
-  const [playing, setPlaying] = useState(false);
-  const [duration, setDuration] = useState(0);
-  const [current, setCurrent] = useState(0);
-  const [buffered, setBuffered] = useState(0);
-  const [volume, setVolume] = useState(1);
-  const [rate, setRate] = useState(1);
+  const [state, setState] = useState({
+    playing: false, current: 0, duration: 0, buffered: 0,
+    volume: 1, muted: false, rate: 1,
+    levels: [], activeLevel: -1, audioTracks: [], activeAudioTrack: -1,
+    pipAvailable: false,
+  });
   const [controlsVisible, setControlsVisible] = useState(true);
-  const [levels, setLevels] = useState([]);
-  const [activeLevel, setActiveLevel] = useState(-1);
-  const [isYoutube] = useState(source.type === 'youtube');
-  const ytPlayerRef = useRef(null);
-  const ytIntervalRef = useRef(null);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [screenFit, setScreenFit] = useState('contain');
+  const [fullscreen, setFullscreen] = useState(false);
+  const [pipActive, setPipActive] = useState(false);
+  const [flash, setFlash] = useState(null);
+  const [dataSaver, setDataSaver] = useState(false);
+  const [activeSubtitleLang, setActiveSubtitleLang] = useState('off');
+  const [subtitleCues, setSubtitleCues] = useState([]);
+
+  const { settings: subSettings, update: updateSubSettings, reset: resetSubSettings } = useSubtitleSettings();
+
+  const onState = useCallback((patch) => setState((s) => ({ ...s, ...patch })), []);
 
   const showControls = useCallback(() => {
     setControlsVisible(true);
     clearTimeout(hideTimerRef.current);
-    hideTimerRef.current = setTimeout(() => setControlsVisible(false), 3000);
-  }, []);
+    if (!settingsOpen) hideTimerRef.current = setTimeout(() => setControlsVisible(false), 3000);
+  }, [settingsOpen]);
 
   useEffect(() => {
-    if (isYoutube) return;
-    const video = videoRef.current;
-    if (!video) return;
-
-    let cleanup = () => {};
-    if (source.type === 'hls' && video.canPlayType('application/vnd.apple.mpegurl')) {
-      video.src = source.url;
-    } else if (source.type === 'hls') {
-      import('hls.js').then(({ default: Hls }) => {
-        if (Hls.isSupported()) {
-          const hls = new Hls({ capLevelToPlayerSize: true, startLevel: -1 });
-          hls.loadSource(source.url);
-          hls.attachMedia(video);
-          hls.on(Hls.Events.MANIFEST_PARSED, (_, data) => setLevels(data.levels || []));
-          hls.on(Hls.Events.LEVEL_SWITCHED, (_, data) => setActiveLevel(data.level));
-          hlsRef.current = hls;
-          cleanup = () => hls.destroy();
-        } else {
-          video.src = source.url;
-        }
-      });
-    } else {
-      video.src = source.url;
-    }
-
-    return () => cleanup();
-  }, [source, isYoutube]);
-
-  useEffect(() => {
-    if (!isYoutube) return;
-    function init() {
-      ytPlayerRef.current = new window.YT.Player(containerRef.current.querySelector('#yt-target'), {
-        videoId: source.videoId,
-        playerVars: { autoplay: 1, controls: 0, modestbranding: 1, rel: 0, start: Math.floor(startAt) },
-        events: {
-          onReady: (e) => {
-            setDuration(e.target.getDuration());
-            e.target.playVideo();
-          },
-          onStateChange: (e) => {
-            setPlaying(e.data === window.YT.PlayerState.PLAYING);
-            if (e.data === window.YT.PlayerState.ENDED) onEnded?.();
-          },
-        },
-      });
-      ytIntervalRef.current = setInterval(() => {
-        const p = ytPlayerRef.current;
-        if (p && p.getCurrentTime) setCurrent(p.getCurrentTime());
-      }, 500);
-    }
-    if (window.YT && window.YT.Player) init();
-    else {
-      const prev = window.onYouTubeIframeAPIReady;
-      window.onYouTubeIframeAPIReady = () => { prev?.(); init(); };
-    }
-    return () => {
-      clearInterval(ytIntervalRef.current);
-      ytPlayerRef.current?.destroy?.();
-    };
-  }, [isYoutube, source, startAt, onEnded]);
-
-  useEffect(() => {
-    if (isYoutube) return;
-    const video = videoRef.current;
-    if (!video) return;
-
-    function onLoaded() {
-      setDuration(video.duration);
-      if (startAt > 0) video.currentTime = startAt;
-    }
-    function onTime() {
-      setCurrent(video.currentTime);
-      if (video.buffered.length) setBuffered(video.buffered.end(video.buffered.length - 1));
-    }
-    function onPlay() { setPlaying(true); }
-    function onPause() { setPlaying(false); saveNow(); }
-    function onEndedEvt() { saveNow(); onEnded?.(); }
-
-    video.addEventListener('loadedmetadata', onLoaded);
-    video.addEventListener('timeupdate', onTime);
-    video.addEventListener('play', onPlay);
-    video.addEventListener('pause', onPause);
-    video.addEventListener('ended', onEndedEvt);
-    return () => {
-      video.removeEventListener('loadedmetadata', onLoaded);
-      video.removeEventListener('timeupdate', onTime);
-      video.removeEventListener('play', onPlay);
-      video.removeEventListener('pause', onPause);
-      video.removeEventListener('ended', onEndedEvt);
-    };
-  }, [isYoutube, startAt, onEnded]);
-
-  function saveNow() {
-    const pos = isYoutube ? ytPlayerRef.current?.getCurrentTime?.() : videoRef.current?.currentTime;
-    const dur = isYoutube ? ytPlayerRef.current?.getDuration?.() : videoRef.current?.duration;
-    if (pos != null && dur) onProgress?.(pos, dur, true);
-  }
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (Math.abs(current - lastSavedRef.current) >= 5 && duration) {
-        lastSavedRef.current = current;
-        onProgress?.(current, duration, false);
-      }
-    }, 10000);
-    return () => clearInterval(interval);
-  }, [current, duration, onProgress]);
-
-  useEffect(() => {
-    function onVisibility() { if (document.hidden) saveNow(); }
-    function onPageHide() { saveNow(); }
-    document.addEventListener('visibilitychange', onVisibility);
-    window.addEventListener('pagehide', onPageHide);
-    return () => {
-      document.removeEventListener('visibilitychange', onVisibility);
-      window.removeEventListener('pagehide', onPageHide);
-      saveNow();
-    };
+    if (settingsOpen) { clearTimeout(hideTimerRef.current); setControlsVisible(true); }
+    else showControls();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [settingsOpen]);
 
-  function togglePlay() {
-    if (isYoutube) {
-      const p = ytPlayerRef.current;
-      if (!p) return;
-      playing ? p.pauseVideo() : p.playVideo();
-    } else {
-      const v = videoRef.current;
-      playing ? v.pause() : v.play();
+  useEffect(() => {
+    if (activeSubtitleLang === 'off') { setSubtitleCues([]); return; }
+    const track = source.subtitles?.find((t) => t.lang === activeSubtitleLang);
+    if (!track) return;
+    let cancelled = false;
+    fetch(track.url).then((r) => r.text()).then((text) => {
+      if (!cancelled) setSubtitleCues(parseVtt(text));
+    }).catch(() => {});
+    return () => { cancelled = true; };
+  }, [activeSubtitleLang, source.subtitles]);
+
+  const activeCue = getActiveCue(subtitleCues, state.current);
+
+  const nearEndFiredRef = useRef(false);
+  useEffect(() => {
+    if (!onNearEnd || !state.duration || nearEndFiredRef.current) return;
+    if (state.current / state.duration >= 0.95) {
+      nearEndFiredRef.current = true;
+      onNearEnd();
     }
+  }, [state.current, state.duration, onNearEnd]);
+
+  function handleSaveNow(pos, dur, final, keepalive) {
+    onProgress?.(pos, dur, keepalive);
   }
 
-  function seekTo(t) {
-    if (isYoutube) ytPlayerRef.current?.seekTo(t, true);
-    else if (videoRef.current) videoRef.current.currentTime = t;
-    setCurrent(t);
-  }
-
-  function seekBy(delta) {
-    seekTo(Math.max(0, Math.min(duration, current + delta)));
-  }
-
-  function setVideoVolume(v) {
-    setVolume(v);
-    if (videoRef.current) videoRef.current.volume = v;
-    if (isYoutube) ytPlayerRef.current?.setVolume?.(v * 100);
-  }
-
-  function setPlaybackRate(r) {
-    setRate(r);
-    if (videoRef.current) videoRef.current.playbackRate = r;
-    if (isYoutube) ytPlayerRef.current?.setPlaybackRate?.(r);
-  }
-
-  function setQuality(levelIndex) {
-    if (hlsRef.current) hlsRef.current.currentLevel = levelIndex;
-  }
+  function togglePlay() { state.playing ? coreRef.current?.pause() : coreRef.current?.play(); }
+  function seekTo(t) { coreRef.current?.seekTo(t); }
+  function seekBy(delta) { coreRef.current?.seekTo(Math.max(0, Math.min(state.duration, state.current + delta))); }
+  function setVolume(v) { setState((s) => ({ ...s, volume: v, muted: false })); coreRef.current?.setVolume(v); coreRef.current?.setMuted(false); }
+  function toggleMute() { const m = !state.muted; setState((s) => ({ ...s, muted: m })); coreRef.current?.setMuted(m); }
+  function setRate(r) { setState((s) => ({ ...s, rate: r })); coreRef.current?.setRate(r); }
+  function setQuality(i) { coreRef.current?.setQuality(i); }
+  function setAudioTrack(i) { coreRef.current?.setAudioTrack(i); }
 
   function toggleFullscreen() {
-    if (!document.fullscreenElement) containerRef.current?.requestFullscreen?.();
+    if (!document.fullscreenElement) containerRef.current?.requestFullscreen?.().catch(() => {});
     else document.exitFullscreen?.();
   }
+  useEffect(() => {
+    function onChange() { setFullscreen(!!document.fullscreenElement); }
+    document.addEventListener('fullscreenchange', onChange);
+    return () => document.removeEventListener('fullscreenchange', onChange);
+  }, []);
 
   function togglePip() {
     if (document.pictureInPictureElement) document.exitPictureInPicture?.();
-    else videoRef.current?.requestPictureInPicture?.();
+    else coreRef.current?.getVideoEl?.()?.requestPictureInPicture?.().catch(() => {});
+  }
+  useEffect(() => {
+    const video = coreRef.current?.getVideoEl?.();
+    if (!video) return;
+    function onEnter() { setPipActive(true); }
+    function onLeave() { setPipActive(false); }
+    video.addEventListener('enterpictureinpicture', onEnter);
+    video.addEventListener('leavepictureinpicture', onLeave);
+    return () => {
+      video.removeEventListener('enterpictureinpicture', onEnter);
+      video.removeEventListener('leavepictureinpicture', onLeave);
+    };
+  }, [state.duration]);
+
+  function triggerFlash(side) {
+    setFlash({ side, key: Date.now() });
+    clearTimeout(flashTimerRef.current);
+    flashTimerRef.current = setTimeout(() => setFlash(null), 500);
   }
 
+  const lastKeySeekRef = useRef(0);
   useEffect(() => {
     function onKey(e) {
-      if (e.target.tagName === 'INPUT') return;
-      if (e.key === ' ') { e.preventDefault(); togglePlay(); }
-      if (e.key === 'ArrowRight') seekBy(10);
-      if (e.key === 'ArrowLeft') seekBy(-10);
-      if (e.key.toLowerCase() === 'f') toggleFullscreen();
-      if (e.key.toLowerCase() === 'm') setVideoVolume(volume > 0 ? 0 : 1);
+      if (settingsOpen || e.target.tagName === 'INPUT') return;
+      const now = Date.now();
+      if (e.key === ' ' || e.key.toLowerCase() === 'k') { e.preventDefault(); togglePlay(); }
+      else if (e.key === 'ArrowRight') { seekBy(10); lastKeySeekRef.current = now; }
+      else if (e.key === 'ArrowLeft') { seekBy(-10); lastKeySeekRef.current = now; }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); setVolume(Math.min(1, state.volume + 0.1)); }
+      else if (e.key === 'ArrowDown') { e.preventDefault(); setVolume(Math.max(0, state.volume - 0.1)); }
+      else if (e.key.toLowerCase() === 'm') toggleMute();
+      else if (e.key.toLowerCase() === 'f') toggleFullscreen();
       showControls();
     }
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [playing, current, duration, volume]);
+  }, [settingsOpen, state.playing, state.current, state.duration, state.volume, state.muted, showControls]);
 
-  function onTouchEnd(e) {
+  function onTouchEndContainer(e) {
+    if (settingsOpen) return;
     const rect = containerRef.current.getBoundingClientRect();
     const x = e.changedTouches[0].clientX - rect.left;
-    const side = x < rect.width / 2 ? 'left' : 'right';
+    const side = x < rect.width * 0.4 ? 'left' : x > rect.width * 0.6 ? 'right' : null;
     const now = Date.now();
-    if (lastTapRef.current.side === side && now - lastTapRef.current.t < 300) {
-      seekBy(side === 'left' ? -10 : 10);
+    if (side && lastTapRef.current.side === side && now - lastTapRef.current.t < 300) {
+      if (now - lastKeySeekRef.current > 400) { seekBy(side === 'left' ? -10 : 10); triggerFlash(side); }
+      lastTapRef.current = { t: 0, side: null };
+    } else {
+      lastTapRef.current = { t: now, side };
+      if (controlsVisible) { clearTimeout(hideTimerRef.current); setControlsVisible(false); }
+      else showControls();
     }
-    lastTapRef.current = { t: now, side };
-    showControls();
   }
 
   return (
     <div
       ref={containerRef}
-      className="fixed inset-0 bg-black z-[200]"
+      className="fixed inset-0 bg-black z-[200] overflow-hidden"
       onMouseMove={showControls}
-      onTouchEnd={onTouchEnd}
+      onTouchEnd={onTouchEndContainer}
+      style={{ ...subtitleCssVars(subSettings), '--video-fit': screenFit }}
     >
-      {isYoutube ? (
-        <div id="yt-target" className="w-full h-full" />
-      ) : (
-        <video ref={videoRef} className="w-full h-full" playsInline autoPlay onClick={togglePlay} />
-      )}
-
-      <button
-        onClick={onBack}
-        aria-label="Back"
-        className={`absolute z-10 top-[calc(16px+env(safe-area-inset-top,0px))] left-4 w-9 h-9 rounded-full bg-black/50 flex items-center justify-center transition-opacity ${controlsVisible ? 'opacity-100' : 'opacity-0'}`}
-      >
-        <svg viewBox="0 0 24 24" className="w-5 h-5 stroke-white fill-none stroke-2"><path d="M15 19l-7-7 7-7" /></svg>
-      </button>
-
-      <div
-        className={`absolute bottom-0 left-0 right-0 px-5 pb-[calc(16px+env(safe-area-inset-bottom,0px))] pt-10 transition-opacity ${controlsVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
-        style={{ background: 'linear-gradient(0deg, rgba(0,0,0,0.85), transparent)' }}
-      >
-        {(title || subtitle) && (
-          <div className="mb-2 text-white">
-            <div className="text-sm font-semibold">{title}</div>
-            {subtitle && <div className="text-xs text-white/70">{subtitle}</div>}
-          </div>
-        )}
-        <input
-          type="range"
-          min={0}
-          max={duration || 0}
-          value={current}
-          onChange={(e) => seekTo(Number(e.target.value))}
-          className="w-full accent-red mb-2"
+      <div className="player-video-fit w-full h-full" onClick={togglePlay}>
+        <PlayerCore
+          ref={coreRef}
+          source={source}
+          startAt={startAt}
+          onState={onState}
+          onEnded={onEnded}
+          onSaveNow={handleSaveNow}
         />
-        <div className="flex items-center gap-4 text-white">
-          <button onClick={togglePlay} aria-label={playing ? 'Pause' : 'Play'}>
-            {playing ? '❚❚' : '▶'}
-          </button>
-          <span className="text-xs">{formatTime(current)} / {formatTime(duration)}</span>
-          <div className="flex-1" />
-          <input
-            type="range"
-            min={0}
-            max={1}
-            step={0.05}
-            value={volume}
-            onChange={(e) => setVideoVolume(Number(e.target.value))}
-            className="w-20 accent-red"
-            aria-label="Volume"
-          />
-          <select
-            value={rate}
-            onChange={(e) => setPlaybackRate(Number(e.target.value))}
-            className="bg-transparent text-xs border border-white/30 rounded px-1.5 py-1"
-          >
-            {[0.5, 1, 1.25, 1.5, 2].map((r) => (
-              <option key={r} value={r} className="text-black">{r}×</option>
-            ))}
-          </select>
-          {levels.length > 0 && (
-            <select
-              value={activeLevel}
-              onChange={(e) => setQuality(Number(e.target.value))}
-              className="bg-transparent text-xs border border-white/30 rounded px-1.5 py-1"
-            >
-              <option value={-1} className="text-black">Auto</option>
-              {levels.map((lvl, i) => (
-                <option key={i} value={i} className="text-black">{lvl.height}p</option>
-              ))}
-            </select>
-          )}
-          {!isYoutube && (
-            <button onClick={togglePip} aria-label="Picture in picture" className="text-xs">PiP</button>
-          )}
-          <button onClick={toggleFullscreen} aria-label="Fullscreen" className="text-xs">⛶</button>
-        </div>
       </div>
+
+      <SubtitleOverlay text={activeCue?.text} controlsVisible={controlsVisible} />
+
+      <ControlsOverlay
+        visible={controlsVisible}
+        title={title}
+        subtitle={subtitle}
+        playing={state.playing}
+        current={state.current}
+        duration={state.duration}
+        buffered={state.buffered}
+        volume={state.volume}
+        muted={state.muted}
+        onBack={onBack}
+        onTogglePlay={togglePlay}
+        onSeek={seekTo}
+        onSeekBy={(d) => { seekBy(d); triggerFlash(d < 0 ? 'left' : 'right'); }}
+        onVolumeChange={setVolume}
+        onToggleMute={toggleMute}
+        onOpenSettings={() => setSettingsOpen(true)}
+        screenFit={screenFit}
+        onToggleScreenFit={() => setScreenFit((f) => (f === 'contain' ? 'cover' : 'contain'))}
+        fullscreen={fullscreen}
+        onToggleFullscreen={toggleFullscreen}
+        pipAvailable={state.pipAvailable}
+        pipActive={pipActive}
+        onTogglePip={togglePip}
+        showNext={showNext && !settingsOpen}
+        nextCountdown={nextCountdown}
+        onPlayNext={onPlayNext}
+        onCancelNext={onCancelNext}
+        flash={flash}
+      />
+
+      {settingsOpen && (
+        <SettingsPanel
+          onClose={() => setSettingsOpen(false)}
+          audioTracks={state.audioTracks}
+          activeAudioTrack={state.activeAudioTrack}
+          onAudioChange={setAudioTrack}
+          subtitleTracks={source.subtitles}
+          activeSubtitleLang={activeSubtitleLang}
+          onSubtitleChange={setActiveSubtitleLang}
+          subtitleSettings={subSettings}
+          updateSubtitleSettings={updateSubSettings}
+          resetSubtitleSettings={resetSubSettings}
+          rate={state.rate}
+          onRateChange={setRate}
+          levels={state.levels}
+          activeLevel={state.activeLevel}
+          onQualityChange={setQuality}
+          dataSaver={dataSaver}
+          onDataSaverChange={setDataSaver}
+        />
+      )}
     </div>
   );
 }
