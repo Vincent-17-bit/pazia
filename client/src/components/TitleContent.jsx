@@ -13,19 +13,60 @@ function DownloadMenu({ item, onClose }) {
   const qualities = item.downloadQualities?.length
     ? item.downloadQualities
     : [{ label: '480p', sizeMB: null }, { label: '720p', sizeMB: null }, { label: '1080p', sizeMB: null }];
+  const [progress, setProgress] = useState({});
+
+  async function startDownload(q) {
+    if (!q.url || progress[q.label]?.status === 'downloading') return;
+    setProgress((p) => ({ ...p, [q.label]: { status: 'downloading', pct: 0 } }));
+    try {
+      const res = await fetch(q.url);
+      const total = Number(res.headers.get('content-length')) || 0;
+      const reader = res.body.getReader();
+      const chunks = [];
+      let loaded = 0;
+      for (;;) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        chunks.push(value);
+        loaded += value.length;
+        setProgress((p) => ({ ...p, [q.label]: { status: 'downloading', pct: total ? Math.round((loaded / total) * 100) : p[q.label]?.pct || 0 } }));
+      }
+      const blobUrl = URL.createObjectURL(new Blob(chunks));
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = `${item.title || 'video'} - ${q.label}`;
+      a.click();
+      URL.revokeObjectURL(blobUrl);
+      setProgress((p) => ({ ...p, [q.label]: { status: 'done', pct: 100 } }));
+    } catch {
+      setProgress((p) => ({ ...p, [q.label]: { status: 'error', pct: 0 } }));
+    }
+  }
+
   return (
     <div className="absolute z-20 top-full mt-2 left-0 bg-surface border border-line rounded-lg overflow-hidden min-w-[180px] shadow-xl">
-      {qualities.map((q) => (
-        <a
-          key={q.label}
-          href={q.url || '#'}
-          onClick={(e) => { if (!q.url) e.preventDefault(); onClose(); }}
-          className="flex items-center justify-between px-4 py-2.5 text-sm hover:bg-surface2"
-        >
-          <span>{q.label}</span>
-          {q.sizeMB && <span className="text-xs text-inkdim">{q.sizeMB} MB</span>}
-        </a>
-      ))}
+      {qualities.map((q) => {
+        const st = progress[q.label];
+        return (
+          <button
+            key={q.label}
+            onClick={() => (st?.status === 'downloading' ? undefined : st?.status === 'done' ? onClose() : startDownload(q))}
+            disabled={!q.url}
+            className="relative w-full flex items-center justify-between px-4 py-2.5 text-sm hover:bg-surface2 disabled:opacity-40 overflow-hidden text-left"
+          >
+            {st?.status === 'downloading' && (
+              <span className="absolute inset-y-0 left-0 bg-red/20" style={{ width: `${st.pct}%` }} />
+            )}
+            <span className="relative z-10">{q.label}</span>
+            <span className="relative z-10 text-xs text-inkdim">
+              {st?.status === 'downloading' && `${st.pct}%`}
+              {st?.status === 'done' && 'Done'}
+              {st?.status === 'error' && 'Failed'}
+              {!st && q.sizeMB && `${q.sizeMB} MB`}
+            </span>
+          </button>
+        );
+      })}
     </div>
   );
 }
