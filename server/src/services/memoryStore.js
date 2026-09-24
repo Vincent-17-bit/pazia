@@ -3,6 +3,7 @@ const watchlist = new Map();
 const history = new Map();
 const ratings = new Map();
 const contentSources = new Map();
+const events = [];
 
 function key(mediaType, tmdbId, season, episode) {
   return [mediaType, tmdbId, season ?? '', episode ?? ''].join(':');
@@ -70,6 +71,13 @@ export const memRatings = {
   },
   list(userId) {
     return [...ratings.values()].filter((r) => r.userId === userId);
+  },
+};
+
+export const memEvents = {
+  add(doc) {
+    events.push(doc);
+    if (events.length > 5000) events.shift();
   },
 };
 

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../lib/api.js';
+import { track } from '../lib/analytics.js';
 import { grad } from './PosterCard.jsx';
 import TitleHeroMedia from './TitleHeroMedia.jsx';
 import EpisodeList from './EpisodeList.jsx';
@@ -126,6 +127,13 @@ export default function TitleContent({ mediaType, id, variant = 'page', onClose,
   }, [mediaType, id]);
 
   useEffect(() => {
+    if (variant === 'modal' && query.data) {
+      track('modal_viewed', { mediaType: query.data.mediaType, tmdbId: query.data.id });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [variant, query.data?.id]);
+
+  useEffect(() => {
     if (query.data?.seasons?.length && season === null) {
       setSeason(query.data.seasons[query.data.seasons.length - 1].seasonNumber);
     }
@@ -172,6 +180,7 @@ export default function TitleContent({ mediaType, id, variant = 'page', onClose,
   }
 
   function onPlay() {
+    track('play_clicked', { mediaType: item.mediaType, tmdbId: item.id });
     if (item.hasLicensedSource) {
       goPlay();
     } else {
