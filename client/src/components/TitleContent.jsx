@@ -202,7 +202,7 @@ export default function TitleContent({ mediaType, id, variant = 'page', onClose,
   }
 
   return (
-    <div className={variant === 'modal' ? '' : 'pb-16'}>
+    <div className={variant === 'modal' ? '' : 'pb-16 pt-[calc(120px+env(safe-area-inset-top,0px))]'}>
       <TitleHeroMedia
         backdropPath={item.backdropPath}
         colorSeed={item.colorSeed}

@@ -16,21 +16,26 @@ export default function MenuOverlay({ open, onClose, onSearchClick, onSelectSubc
 
   return (
     <div className={`fixed inset-0 z-[90] transition-opacity duration-200 ${open ? 'opacity-100 visible' : 'opacity-0 invisible'}`}>
-      <div className="absolute inset-0 bg-bg/95 backdrop-blur-xl" onClick={onClose} />
+      <div className="absolute inset-0 bg-bg" onClick={onClose} />
       <div
         className={`relative z-10 h-full flex flex-col px-5 pb-5 pt-[calc(16px+env(safe-area-inset-top,0px)+56px)] transition-transform duration-200 ${
           open ? 'translate-y-0' : '-translate-y-2'
         }`}
       >
-        <button
-          onClick={() => { onClose(); onSearchClick(); }}
-          className="flex items-center gap-2.5 bg-surface border border-line rounded-[10px] px-3.5 py-2.5 mb-[18px] text-left"
-        >
-          <svg viewBox="0 0 24 24" className="w-[18px] h-[18px] stroke-inkdim fill-none stroke-2 flex-none">
-            <circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.6" y2="16.6" />
-          </svg>
-          <span className="text-[15px] text-inkdim/55">Search titles, people, genres…</span>
-        </button>
+        <div className="flex items-center gap-3 mb-[18px]">
+          <button
+            onClick={() => { onClose(); onSearchClick(); }}
+            className="flex-1 flex items-center gap-2.5 bg-surface border border-line rounded-[10px] px-3.5 py-2.5 text-left"
+          >
+            <svg viewBox="0 0 24 24" className="w-[18px] h-[18px] stroke-inkdim fill-none stroke-2 flex-none">
+              <circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.6" y2="16.6" />
+            </svg>
+            <span className="text-[15px] text-inkdim/55">Search titles, people, genres…</span>
+          </button>
+          <button onClick={onClose} aria-label="Close menu" className="w-9 h-9 flex-none rounded-full bg-surface2 border border-line flex items-center justify-center">
+            <svg viewBox="0 0 24 24" className="w-[18px] h-[18px] stroke-ink fill-none stroke-2"><path d="M6 6l12 12M18 6L6 18" /></svg>
+          </button>
+        </div>
 
         <div className="border-t border-line mb-2" />
 
