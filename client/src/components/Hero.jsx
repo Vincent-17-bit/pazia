@@ -20,7 +20,7 @@ export default function Hero({ featured, strip, onStripSelect, kicker }) {
             'linear-gradient(90deg, rgba(11,11,15,0.95) 0%, rgba(11,11,15,0.55) 45%, rgba(11,11,15,0.15) 75%), linear-gradient(0deg, var(--bg) 0%, rgba(11,11,15,0.1) 40%)',
         }}
       />
-      <div className="relative z-10 h-full flex flex-col justify-end px-5 pb-4.5 max-w-[640px]">
+      <div className="relative z-10 h-full flex flex-col justify-end px-5 pb-[18px] max-w-[640px]">
         {kicker && (
           <div className="text-[13px] font-semibold tracking-wide text-red uppercase mb-1.5">{kicker}</div>
         )}

@@ -47,7 +47,7 @@ export default function Search() {
   return (
     <div className="px-5 pt-[calc(120px+env(safe-area-inset-top,0px))] pb-16">
       <div className="flex items-center gap-2.5 bg-surface border border-line rounded-[10px] px-3.5 py-2.5 mb-4">
-        <svg viewBox="0 0 24 24" className="w-4.5 h-4.5 stroke-inkdim fill-none stroke-2 flex-none">
+        <svg viewBox="0 0 24 24" className="w-[18px] h-[18px] stroke-inkdim fill-none stroke-2 flex-none">
           <circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.6" y2="16.6" />
         </svg>
         <input

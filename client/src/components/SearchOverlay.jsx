@@ -99,9 +99,9 @@ export default function SearchOverlay({ open, onClose, onSelect }) {
           open ? 'translate-y-0' : '-translate-y-2'
         }`}
       >
-        <div className="flex items-center gap-3 mb-4.5">
+        <div className="flex items-center gap-3 mb-[18px]">
           <div className="flex-1 flex items-center gap-2.5 bg-surface border border-line rounded-[10px] px-3.5 py-2.5">
-            <svg viewBox="0 0 24 24" className="w-4.5 h-4.5 stroke-inkdim fill-none stroke-2 flex-none">
+            <svg viewBox="0 0 24 24" className="w-[18px] h-[18px] stroke-inkdim fill-none stroke-2 flex-none">
               <circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.6" y2="16.6" />
             </svg>
             <input
@@ -127,7 +127,7 @@ export default function SearchOverlay({ open, onClose, onSelect }) {
             )}
           </div>
           <button onClick={onClose} aria-label="Close search" className="w-9 h-9 flex-none rounded-full bg-surface2 border border-line flex items-center justify-center">
-            <svg viewBox="0 0 24 24" className="w-4.5 h-4.5 stroke-ink fill-none stroke-2">
+            <svg viewBox="0 0 24 24" className="w-[18px] h-[18px] stroke-ink fill-none stroke-2">
               <line x1="5" y1="5" x2="19" y2="19" /><line x1="19" y1="5" x2="5" y2="19" />
             </svg>
           </button>
