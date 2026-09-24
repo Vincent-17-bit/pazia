@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { formatTime, formatRemaining } from '../utils/format.js';
 
 function Icon({ d, className = 'w-5 h-5 stroke-white' }) {
@@ -9,6 +10,7 @@ export default function ControlsOverlay({
   title, subtitle,
   playing, current, duration, buffered, volume, muted,
   onBack, onTogglePlay, onSeek, onSeekBy, onVolumeChange, onToggleMute, onOpenSettings,
+  subtitleTracks, activeSubtitleLang, onSubtitleChange,
   screenFit, onToggleScreenFit,
   fullscreen, onToggleFullscreen,
   pipAvailable, pipActive, onTogglePip,
@@ -19,6 +21,9 @@ export default function ControlsOverlay({
 }) {
   const pct = duration ? (current / duration) * 100 : 0;
   const bufPct = duration ? (buffered / duration) * 100 : 0;
+  const [subMenuOpen, setSubMenuOpen] = useState(false);
+  const subtitleOn = activeSubtitleLang && activeSubtitleLang !== 'off';
+  useEffect(() => { if (!visible) setSubMenuOpen(false); }, [visible]);
 
   return (
     <>
@@ -110,9 +115,40 @@ export default function ControlsOverlay({
               <span className="hidden sm:inline text-[10px] text-white/50 border border-white/20 rounded px-1.5 py-0.5">{qualityLabel}</span>
             )}
 
-            <button onClick={onOpenSettings} aria-label="Subtitles" className="min-w-[44px] min-h-[44px] flex items-center justify-center">
-              <Icon d="M4 5h16v11H8l-4 4V5z" />
-            </button>
+            {subtitleTracks?.length > 0 ? (
+              <div className="relative">
+                {subMenuOpen && (
+                  <div className="absolute bottom-full right-0 mb-2 bg-surface border border-line rounded-lg p-2 flex flex-col gap-1 min-w-[120px]">
+                    <button
+                      onClick={() => { onSubtitleChange('off'); setSubMenuOpen(false); }}
+                      className={`text-xs px-2.5 py-1.5 rounded-full border text-left ${!subtitleOn ? 'border-red text-red' : 'border-line text-white/70'}`}
+                    >
+                      Off
+                    </button>
+                    {subtitleTracks.map((t) => (
+                      <button
+                        key={t.lang}
+                        onClick={() => { onSubtitleChange(t.lang); setSubMenuOpen(false); }}
+                        className={`text-xs px-2.5 py-1.5 rounded-full border text-left ${activeSubtitleLang === t.lang ? 'border-red text-red' : 'border-line text-white/70'}`}
+                      >
+                        {t.lang}
+                      </button>
+                    ))}
+                  </div>
+                )}
+                <button
+                  onClick={() => setSubMenuOpen((v) => !v)}
+                  aria-label="Subtitles"
+                  className="min-w-[44px] min-h-[44px] flex items-center justify-center"
+                >
+                  <Icon d="M4 5h16v11H8l-4 4V5z" className={`w-5 h-5 ${subtitleOn ? 'stroke-red' : 'stroke-white'}`} />
+                </button>
+              </div>
+            ) : (
+              <button onClick={onOpenSettings} aria-label="Subtitles" className="min-w-[44px] min-h-[44px] flex items-center justify-center">
+                <Icon d="M4 5h16v11H8l-4 4V5z" />
+              </button>
+            )}
             <button onClick={onToggleScreenFit} aria-label="Screen fit" className="min-w-[44px] min-h-[44px] hidden sm:flex items-center justify-center">
               <Icon d={screenFit === 'contain' ? 'M4 8V4h4M20 8V4h-4M4 16v4h4M20 16v4h-4' : 'M4 4h16v16H4z'} />
             </button>

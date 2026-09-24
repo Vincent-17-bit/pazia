@@ -237,6 +237,9 @@ export default function Player({
         onVolumeChange={setVolume}
         onToggleMute={toggleMute}
         onOpenSettings={() => setSettingsOpen(true)}
+        subtitleTracks={source.subtitles}
+        activeSubtitleLang={activeSubtitleLang}
+        onSubtitleChange={setActiveSubtitleLang}
         screenFit={screenFit}
         onToggleScreenFit={() => setScreenFit((f) => (f === 'contain' ? 'cover' : 'contain'))}
         fullscreen={fullscreen}
