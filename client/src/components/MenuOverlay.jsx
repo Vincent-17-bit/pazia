@@ -16,7 +16,7 @@ export default function MenuOverlay({ open, onClose, onSearchClick, onSelectSubc
 
   return (
     <div className={`fixed inset-0 z-[90] transition-opacity duration-200 ${open ? 'opacity-100 visible' : 'opacity-0 invisible'}`}>
-      <div className="absolute inset-0 bg-bg/70 backdrop-blur-md backdrop-saturate-50" onClick={onClose} />
+      <div className="absolute inset-0 bg-bg/95 backdrop-blur-xl" onClick={onClose} />
       <div
         className={`relative z-10 h-full flex flex-col px-5 pb-5 pt-[calc(16px+env(safe-area-inset-top,0px)+56px)] transition-transform duration-200 ${
           open ? 'translate-y-0' : '-translate-y-2'
