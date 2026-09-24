@@ -1,6 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { grad } from './PosterCard.jsx';
 import TitleStrip from './TitleStrip.jsx';
+import MyListButton from './MyListButton.jsx';
 
 export default function Hero({ featured, strip, onStripSelect, kicker }) {
   const location = useLocation();
@@ -41,12 +42,7 @@ export default function Hero({ featured, strip, onStripSelect, kicker }) {
             <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
             Play
           </Link>
-          <button className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold bg-white/10 border border-white/25">
-            <svg viewBox="0 0 24 24" className="w-4 h-4 stroke-current fill-none stroke-2">
-              <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
-            </svg>
-            My List
-          </button>
+          <MyListButton mediaType={featured.mediaType} tmdbId={featured.id} variant="pill" />
         </div>
         <TitleStrip items={strip} activeId={featured.id} onSelect={onStripSelect} />
       </div>

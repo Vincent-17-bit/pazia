@@ -12,6 +12,7 @@ import { parseVtt, getActiveCue } from './utils/vtt.js';
 export default function Player({
   source, startAt = 0, onProgress, onEnded, onBack, title, subtitle,
   showNext, nextCountdown, onPlayNext, onCancelNext, onNearEnd,
+  mediaType, tmdbId,
 }) {
   const coreRef = useRef(null);
   const containerRef = useRef(null);
@@ -224,6 +225,8 @@ export default function Player({
         visible={controlsVisible}
         title={title}
         subtitle={subtitle}
+        mediaType={mediaType}
+        tmdbId={tmdbId}
         playing={state.playing}
         current={state.current}
         duration={state.duration}

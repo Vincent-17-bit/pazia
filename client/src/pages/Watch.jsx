@@ -104,6 +104,8 @@ export default function Watch() {
   return (
     <Player
       key={`${mediaType}-${id}-${season}-${episode}`}
+      mediaType={mediaType}
+      tmdbId={id}
       source={sourceQuery.data}
       startAt={startAt}
       onProgress={saveProgress}

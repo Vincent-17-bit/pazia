@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { formatTime, formatRemaining } from '../utils/format.js';
+import MyListButton from '../../components/MyListButton.jsx';
 
 function Icon({ d, className = 'w-5 h-5 stroke-white' }) {
   return <svg viewBox="0 0 24 24" className={`${className} fill-none stroke-2`}><path d={d} /></svg>;
@@ -18,6 +19,7 @@ export default function ControlsOverlay({
   qualityLabel,
   showNext, nextCountdown, onPlayNext, onCancelNext,
   flash,
+  mediaType, tmdbId,
 }) {
   const pct = duration ? (current / duration) * 100 : 0;
   const bufPct = duration ? (buffered / duration) * 100 : 0;
@@ -48,6 +50,9 @@ export default function ControlsOverlay({
             {subtitle && <div className="text-xs text-white/60">{subtitle}</div>}
           </div>
           <div className="flex-1" />
+          {mediaType && tmdbId && (
+            <MyListButton mediaType={mediaType} tmdbId={tmdbId} variant="icon" size="md" bordered={false} />
+          )}
           <button onClick={onOpenSettings} aria-label="Settings" className="w-10 h-10 min-w-[44px] min-h-[44px] flex items-center justify-center">
             <Icon d="M12 15a3 3 0 100-6 3 3 0 000 6zM19 12a7 7 0 00-.1-1.2l2-1.6-2-3.4-2.3 1a7 7 0 00-2-1.2L14 3h-4l-.6 2.6a7 7 0 00-2 1.2l-2.3-1-2 3.4 2 1.6A7 7 0 005 12c0 .4 0 .8.1 1.2l-2 1.6 2 3.4 2.3-1a7 7 0 002 1.2L10 21h4l.6-2.6a7 7 0 002-1.2l2.3 1 2-3.4-2-1.6c.1-.4.1-.8.1-1.2z" />
           </button>

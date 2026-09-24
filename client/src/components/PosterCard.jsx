@@ -1,9 +1,9 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../lib/api.js';
-import { useMyList } from '../context/MyListContext.jsx';
 import { useRatings } from '../context/RatingsContext.jsx';
 import { useHoverIntent } from '../hooks/useHoverIntent.js';
+import MyListButton from './MyListButton.jsx';
 
 const GRADIENTS = [
   ['#3a0d10', '#0b0b0f'], ['#4a1116', '#1a0508'], ['#2a0a10', '#0b0b0f'],
@@ -17,14 +17,12 @@ function grad(seed = 0) {
 export default function PosterCard({ item, wide = false, onItemClick }) {
   const location = useLocation();
   const navigate = useNavigate();
-  const { has, toggle } = useMyList();
   const { get: getRating, rate } = useRatings();
   const { active: previewing, onEnter, onLeave, supportsHover } = useHoverIntent(500);
   const rating = getRating(item.mediaType, item.id);
 
   const bg = item.posterPath ? `url(${item.posterPath})` : grad(item.colorSeed ?? item.id?.length ?? 0);
   const to = `/title/${item.mediaType}/${item.id}`;
-  const inList = has(item.mediaType, item.id);
 
   const previewQuery = useQuery({
     queryKey: ['title', item.mediaType, item.id],
@@ -44,11 +42,6 @@ export default function PosterCard({ item, wide = false, onItemClick }) {
     e.preventDefault();
     e.stopPropagation();
     navigate(item.mediaType === 'movie' ? `/watch/movie/${item.id}` : `/watch/tv/${item.id}?season=1&episode=1`);
-  }
-  function onToggleList(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    toggle(item.mediaType, item.id);
   }
   function onRate(e, value) {
     e.preventDefault();
@@ -100,11 +93,7 @@ export default function PosterCard({ item, wide = false, onItemClick }) {
               <button onClick={onPlay} aria-label="Play" className="w-7 h-7 rounded-full bg-white flex items-center justify-center">
                 <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 ml-0.5" fill="black"><path d="M8 5v14l11-7z" /></svg>
               </button>
-              <button onClick={onToggleList} aria-label={inList ? 'Remove from My List' : 'Add to My List'} className="w-7 h-7 rounded-full border border-white/50 flex items-center justify-center">
-                <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 stroke-white fill-none stroke-2">
-                  {inList ? <path d="M5 13l4 4L19 7" /> : <path d="M12 5v14M5 12h14" />}
-                </svg>
-              </button>
+              <MyListButton mediaType={item.mediaType} tmdbId={item.id} variant="icon" size="sm" />
               <button onClick={(e) => onRate(e, 'up')} aria-label="Thumbs up" className={`w-7 h-7 rounded-full border flex items-center justify-center ${rating === 'up' ? 'border-red bg-red/20' : 'border-white/50'}`}>
                 <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 stroke-white fill-none stroke-2"><path d="M7 11v9H4v-9h3zm0 0l4-8a2 2 0 012 2v5h5a2 2 0 012 2l-1.5 6a2 2 0 01-2 1.5H7" /></svg>
               </button>

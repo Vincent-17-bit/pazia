@@ -16,6 +16,7 @@ router.get('/', async (req, res) => {
 router.post('/', async (req, res) => {
   const { mediaType, tmdbId } = req.body || {};
   if (!mediaType || !tmdbId) return res.status(400).json({ error: 'missing_fields' });
+  if (!['movie', 'tv'].includes(mediaType)) return res.status(400).json({ error: 'invalid_media_type' });
 
   if (dbReady) {
     const doc = await Watchlist.findOneAndUpdate(
