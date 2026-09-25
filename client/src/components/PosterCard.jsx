@@ -41,6 +41,10 @@ export default function PosterCard({ item, wide = false, onItemClick }) {
   function onPlay(e) {
     e.preventDefault();
     e.stopPropagation();
+    if (item.mediaType === 'external') {
+      navigate(`/watch/external/${item.id}`);
+      return;
+    }
     navigate(item.mediaType === 'movie' ? `/watch/movie/${item.id}` : `/watch/tv/${item.id}?season=1&episode=1`);
   }
   function onRate(e, value) {

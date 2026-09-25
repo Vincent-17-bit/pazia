@@ -159,6 +159,10 @@ export default function TitleContent({ mediaType, id, variant = 'page', onClose,
   const heroHeight = variant === 'modal' ? 'h-[60vh] md:h-[60vh] max-md:h-[40vh]' : 'h-[42vh] min-h-[280px]';
 
   function goPlay(seasonNumber, episodeNumber) {
+    if (mediaType === 'external') {
+      navigate(`/watch/external/${item.id}`);
+      return;
+    }
     if (mediaType === 'movie') {
       navigate(`/watch/movie/${item.id}`);
       return;

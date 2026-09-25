@@ -189,6 +189,27 @@ export default function Player({
 
   const showSkipIntro = source.introEnd && state.current < source.introEnd && state.current < 90;
 
+  // embed-only sources (vimeo, archive.org fallback) - no custom controls, provider handles its own UI
+  if (source.type === 'iframe') {
+    return (
+      <div className="fixed inset-0 bg-black z-[200]">
+        <button
+          onClick={onBack}
+          className="absolute top-[calc(16px+env(safe-area-inset-top,0px))] left-4 z-10 w-9 h-9 rounded-full bg-white/10 flex items-center justify-center"
+        >
+          <svg viewBox="0 0 24 24" className="w-5 h-5 stroke-white fill-none stroke-2"><path d="M15 19l-7-7 7-7" /></svg>
+        </button>
+        <iframe
+          src={source.url}
+          title={title || 'Player'}
+          className="w-full h-full border-0"
+          allow="autoplay; fullscreen; picture-in-picture"
+          allowFullScreen
+        />
+      </div>
+    );
+  }
+
   return (
     <div
       ref={containerRef}
