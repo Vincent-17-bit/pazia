@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 const schema = new mongoose.Schema(
   {
     userId: { type: String, required: true, index: true },
-    mediaType: { type: String, enum: ['movie', 'tv'], required: true },
+    mediaType: { type: String, enum: ['movie', 'tv', 'external'], required: true },
     tmdbId: { type: String, required: true },
     addedAt: { type: Date, default: Date.now },
   },
