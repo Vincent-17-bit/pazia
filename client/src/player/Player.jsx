@@ -173,6 +173,7 @@ export default function Player({
 
   function onTouchEndContainer(e) {
     if (settingsOpen) return;
+    if (e.target.closest('button, input, select, a, [role="button"]')) return;
     const rect = containerRef.current.getBoundingClientRect();
     const x = e.changedTouches[0].clientX - rect.left;
     const side = x < rect.width * 0.4 ? 'left' : x > rect.width * 0.6 ? 'right' : null;
