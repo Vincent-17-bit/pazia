@@ -6,7 +6,7 @@ const SWATCHES = ['#ffffff', '#ffee58', '#4dd0e1', '#81c784', '#000000'];
 function Row({ label, children }) {
   return (
     <div className="flex items-center justify-between gap-4 py-2.5">
-      <span className="text-sm text-white/70">{label}</span>
+      <span className="text-sm text-white">{label}</span>
       {children}
     </div>
   );
@@ -78,7 +78,7 @@ export default function SettingsPanel({
         ref={sheetRef}
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
-        className="mt-auto md:mt-0 w-full md:w-[380px] md:h-full max-h-[85vh] md:max-h-none overflow-y-auto bg-surface rounded-t-2xl md:rounded-none border-t md:border-t-0 md:border-l border-line px-5 pb-[calc(20px+env(safe-area-inset-bottom,0px))] pt-3 md:pt-5"
+        className="mt-auto md:mt-0 w-full md:w-[380px] md:h-full max-h-[85vh] md:max-h-none overflow-y-auto bg-black rounded-t-2xl md:rounded-none border-t md:border-t-0 md:border-l border-white/25 px-5 pb-[calc(20px+env(safe-area-inset-bottom,0px))] pt-3 md:pt-5"
       >
         <div className="md:hidden flex justify-center pb-2">
           <div className="w-10 h-1 rounded-full bg-white/30" />
@@ -92,8 +92,8 @@ export default function SettingsPanel({
         </div>
 
         {audioTracks?.length > 1 && (
-          <section className="border-b border-line py-2">
-            <div className="text-xs uppercase tracking-wide text-white/40 mb-1.5">Audio</div>
+          <section className="border-b border-white/25 py-2">
+            <div className="text-xs uppercase tracking-wide text-white font-semibold mb-1.5">Audio</div>
             {audioTracks.map((t, i) => (
               <label key={i} className="flex items-center gap-2 py-1.5 text-sm">
                 <input type="radio" name="audio" checked={activeAudioTrack === i} onChange={() => onAudioChange(i)} className="accent-red" />
@@ -103,8 +103,8 @@ export default function SettingsPanel({
           </section>
         )}
 
-        <section className="border-b border-line py-2">
-          <div className="text-xs uppercase tracking-wide text-white/40 mb-1.5">Subtitles</div>
+        <section className="border-b border-white/25 py-2">
+          <div className="text-xs uppercase tracking-wide text-white font-semibold mb-1.5">Subtitles</div>
           <label className="flex items-center gap-2 py-1.5 text-sm">
             <input type="radio" name="sub" checked={!subtitleOn} onChange={() => onSubtitleChange('off')} className="accent-red" />
             Off
@@ -117,10 +117,10 @@ export default function SettingsPanel({
           ))}
         </section>
 
-        <section className={`border-b border-line py-2 ${!subtitleOn ? 'opacity-40 pointer-events-none' : ''}`}>
-          <div className="text-xs uppercase tracking-wide text-white/40 mb-1.5">Subtitle Appearance</div>
+        <section className={`border-b border-white/25 py-2 ${!subtitleOn ? 'opacity-40 pointer-events-none' : ''}`}>
+          <div className="text-xs uppercase tracking-wide text-white font-semibold mb-1.5">Subtitle Appearance</div>
 
-          <div className="rounded-md bg-black/60 py-3 flex items-center justify-center mb-2">
+          <div className="rounded-md bg-black border border-white/25 py-3 flex items-center justify-center mb-2">
             <span
               style={{
                 fontFamily: { sans: "'Inter',sans-serif", serif: 'Georgia,serif', monospace: "'Courier New',monospace", casual: "'Comic Sans MS',cursive" }[s.fontFamily],
@@ -137,7 +137,7 @@ export default function SettingsPanel({
           </div>
 
           <Row label="Font">
-            <select value={s.fontFamily} onChange={(e) => updateSubtitleSettings({ fontFamily: e.target.value })} className="bg-surface2 text-xs rounded px-2 py-1 border border-line">
+            <select value={s.fontFamily} onChange={(e) => updateSubtitleSettings({ fontFamily: e.target.value })} className="bg-black text-white text-xs rounded px-2 py-1 border border-white/40">
               <option value="sans">Sans</option>
               <option value="serif">Serif</option>
               <option value="monospace">Monospace</option>
@@ -154,7 +154,7 @@ export default function SettingsPanel({
             <input type="range" min={0} max={100} value={s.fontOpacity} onChange={(e) => updateSubtitleSettings({ fontOpacity: Number(e.target.value) })} className="w-28 accent-red" />
           </Row>
           <Row label="Edge Style">
-            <select value={s.edgeStyle} onChange={(e) => updateSubtitleSettings({ edgeStyle: e.target.value })} className="bg-surface2 text-xs rounded px-2 py-1 border border-line">
+            <select value={s.edgeStyle} onChange={(e) => updateSubtitleSettings({ edgeStyle: e.target.value })} className="bg-black text-white text-xs rounded px-2 py-1 border border-white/40">
               <option value="none">None</option>
               <option value="dropshadow">Drop Shadow</option>
               <option value="raised">Raised</option>
@@ -177,21 +177,21 @@ export default function SettingsPanel({
           <Row label="Window opacity">
             <input type="range" min={0} max={100} value={s.windowOpacity} onChange={(e) => updateSubtitleSettings({ windowOpacity: Number(e.target.value) })} className="w-28 accent-red" />
           </Row>
-          <p className="text-[11px] text-white/40 mt-1 mb-2 leading-snug">
+          <p className="text-[11px] text-white/80 mt-1 mb-2 leading-snug">
             "Line background" hugs each line of text. "Caption window" shades the whole area behind all lines.
           </p>
-          <button onClick={handleReset} className="text-xs border border-line rounded-md px-3 py-1.5 w-full">Reset to defaults</button>
+          <button onClick={handleReset} className="text-xs border border-white/40 text-white rounded-md px-3 py-1.5 w-full">Reset to defaults</button>
           {toast && <div className="text-[11px] text-red mt-1.5 text-center">Subtitle style reset</div>}
         </section>
 
-        <section className="border-b border-line py-2">
-          <div className="text-xs uppercase tracking-wide text-white/40 mb-1.5">Playback Speed</div>
+        <section className="border-b border-white/25 py-2">
+          <div className="text-xs uppercase tracking-wide text-white font-semibold mb-1.5">Playback Speed</div>
           <div className="flex flex-wrap gap-1.5">
             {SPEEDS.map((r) => (
               <button
                 key={r}
                 onClick={() => onRateChange(r)}
-                className={`text-xs px-2.5 py-1 rounded-full border ${rate === r ? 'border-red text-red' : 'border-line text-white/70'}`}
+                className={`text-xs px-2.5 py-1 rounded-full border ${rate === r ? 'border-red text-red' : 'border-white/40 text-white'}`}
               >
                 {r}×
               </button>
@@ -201,7 +201,7 @@ export default function SettingsPanel({
 
         {levels?.length > 0 && (
           <section className="py-2">
-            <div className="text-xs uppercase tracking-wide text-white/40 mb-1.5">Quality</div>
+            <div className="text-xs uppercase tracking-wide text-white font-semibold mb-1.5">Quality</div>
             <label className="flex items-center gap-2 py-1 text-sm">
               <input type="radio" name="q" checked={!dataSaver && activeLevel === -1} onChange={() => { onDataSaverChange(false); onQualityChange(-1); }} className="accent-red" />
               Auto
@@ -212,10 +212,10 @@ export default function SettingsPanel({
                   <input type="radio" name="q" checked={!dataSaver && activeLevel === i} onChange={() => { onDataSaverChange(false); onQualityChange(i); }} className="accent-red" />
                   {lvl.height}p
                 </span>
-                {lvl.bitrate > 0 && <span className="text-[11px] text-white/40">{(lvl.bitrate * 3600 / 8 / 1e9).toFixed(1)} GB/hr</span>}
+                {lvl.bitrate > 0 && <span className="text-[11px] text-white/80">{(lvl.bitrate * 3600 / 8 / 1e9).toFixed(1)} GB/hr</span>}
               </label>
             ))}
-            <label className="flex items-center gap-2 py-1.5 text-sm mt-1 border-t border-line pt-2">
+            <label className="flex items-center gap-2 py-1.5 text-sm mt-1 border-t border-white/25 pt-2">
               <input
                 type="checkbox"
                 checked={dataSaver}
