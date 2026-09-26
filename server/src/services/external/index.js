@@ -3,6 +3,7 @@ import * as wikimedia from './wikimediaCommons.js';
 import * as nasa from './nasa.js';
 import * as vimeo from './vimeo.js';
 import * as blender from './blender.js';
+import * as youtubeChannel from './youtubeChannel.js';
 
 export const SOURCES = {
   archiveorg,
@@ -11,6 +12,7 @@ export const SOURCES = {
   nasa,
   vimeo,
   blender,
+  youtube_channel: youtubeChannel,
 };
 
 export async function searchSource(source, params) {

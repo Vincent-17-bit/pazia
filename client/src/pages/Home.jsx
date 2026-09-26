@@ -76,6 +76,7 @@ const EXTERNAL_ROW_KEYS = [
   ['blender_open_movies', 'Blender Open Movies'],
   ['commons_shorts', 'Wikimedia Commons Shorts'],
   ['vimeo_creative_commons', 'Vimeo Creative Commons'],
+  ['nature_docs_natgeo', 'Nature Docs — NatGeo Wild'],
 ];
 
 export default function Home({ selectedCategory }) {

@@ -2,12 +2,13 @@ import { EXTERNAL_ROW_MAPPING } from '../data/externalRows.js';
 import { searchSource } from './external/index.js';
 import { cached } from './cache.js';
 
-const TTL = 60 * 60 * 1000; // these sources change slowly, cache longer than TMDB rows
+const TTL = 60 * 60 * 1000; // default: these sources change slowly, cache longer than TMDB rows
 
 export async function getExternalRowItems(key) {
   const mapping = EXTERNAL_ROW_MAPPING[key];
   if (!mapping) return [];
-  return cached(`external:${key}`, TTL, async () => {
+  const ttl = mapping.ttlMs || TTL;
+  return cached(`external:${key}`, ttl, async () => {
     try {
       return await searchSource(mapping.source, mapping.params);
     } catch (err) {
