@@ -196,7 +196,7 @@ export default function Player({
       <div className="fixed inset-0 bg-black z-[200]">
         <button
           onClick={onBack}
-          className="absolute top-[calc(16px+env(safe-area-inset-top,0px))] left-4 z-10 w-9 h-9 rounded-full bg-white/10 flex items-center justify-center"
+          className="absolute top-[calc(16px+env(safe-area-inset-top,0px))] left-4 z-10 w-9 h-9 min-w-[44px] min-h-[44px] rounded-full bg-white/10 flex items-center justify-center"
         >
           <svg viewBox="0 0 24 24" className="w-5 h-5 stroke-white fill-none stroke-2"><path d="M15 19l-7-7 7-7" /></svg>
         </button>

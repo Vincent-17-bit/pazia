@@ -179,7 +179,7 @@ export default function ControlsOverlay({
           <div className="text-sm font-semibold mb-1">Next Episode in {nextCountdown}s</div>
           <div className="flex gap-2 mt-3">
             <button onClick={onPlayNext} className="flex-1 bg-red rounded-md py-2 text-sm font-semibold">Play now</button>
-            <button onClick={onCancelNext} aria-label="Dismiss" className="w-9 border border-line rounded-md py-2 text-sm">✕</button>
+            <button onClick={onCancelNext} aria-label="Dismiss" className="w-9 min-w-[44px] min-h-[44px] border border-line rounded-md py-2 text-sm flex items-center justify-center">✕</button>
           </div>
         </div>
       )}

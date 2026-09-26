@@ -257,7 +257,7 @@ export default function TitleHeroMedia({ backdropPath, colorSeed, trailerKey, he
           <button
             onClick={togglePlay}
             aria-label={isPlaying ? 'Pause trailer' : 'Play trailer'}
-            className="w-9 h-9 rounded-full bg-white/15 backdrop-blur-md border border-white/25 flex items-center justify-center"
+            className="w-9 h-9 min-w-[44px] min-h-[44px] rounded-full bg-white/15 backdrop-blur-md border border-white/25 flex items-center justify-center"
           >
             {isPlaying ? (
               <svg viewBox="0 0 24 24" className="w-4 h-4" fill="white"><path d="M6 5h4v14H6zM14 5h4v14h-4z" /></svg>
@@ -268,7 +268,7 @@ export default function TitleHeroMedia({ backdropPath, colorSeed, trailerKey, he
           <button
             onClick={toggleMute}
             aria-label={isMuted ? 'Unmute trailer' : 'Mute trailer'}
-            className="w-9 h-9 rounded-full bg-white/15 backdrop-blur-md border border-white/25 flex items-center justify-center"
+            className="w-9 h-9 min-w-[44px] min-h-[44px] rounded-full bg-white/15 backdrop-blur-md border border-white/25 flex items-center justify-center"
           >
             {isMuted ? (
               <svg viewBox="0 0 24 24" className="w-4 h-4">
@@ -290,7 +290,7 @@ export default function TitleHeroMedia({ backdropPath, colorSeed, trailerKey, he
         <button
           onClick={(e) => { e.stopPropagation(); onClose(); }}
           aria-label="Close"
-          className="absolute z-20 top-[calc(16px+env(safe-area-inset-top,0px))] right-4 w-9 h-9 rounded-full bg-white/15 backdrop-blur-md border border-white/25 flex items-center justify-center"
+          className="absolute z-20 top-[calc(16px+env(safe-area-inset-top,0px))] right-4 w-9 h-9 min-w-[44px] min-h-[44px] rounded-full bg-white/15 backdrop-blur-md border border-white/25 flex items-center justify-center"
         >
           <svg viewBox="0 0 24 24" className="w-4 h-4 stroke-white fill-none stroke-2"><path d="M6 6l12 12M18 6L6 18" /></svg>
         </button>
