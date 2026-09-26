@@ -15,6 +15,10 @@ export default function Search() {
   const [q, setQ] = useState(params.get('q') || '');
   const [page, setPage] = useState(1);
 
+  useEffect(() => {
+    setQ(params.get('q') || '');
+  }, [params]);
+
   const type = params.get('type') || '';
   const genre = params.get('genre') || '';
   const language = params.get('language') || '';
@@ -63,7 +67,7 @@ export default function Search() {
           <button
             key={t}
             onClick={() => updateParam('type', type === t ? '' : t)}
-            className={`px-3.5 py-1.5 rounded-full text-xs border ${type === t ? 'bg-red border-red' : 'border-line text-inkdim'}`}
+            className={`px-3.5 py-1.5 rounded-full text-xs border transition-colors ${type === t ? 'bg-red border-red' : 'border-line text-inkdim'}`}
           >
             {t === 'movie' ? 'Movies' : 'TV'}
           </button>
@@ -72,7 +76,7 @@ export default function Search() {
           <button
             key={g}
             onClick={() => updateParam('genre', genre === g ? '' : g)}
-            className={`px-3.5 py-1.5 rounded-full text-xs border ${genre === g ? 'bg-red border-red' : 'border-line text-inkdim'}`}
+            className={`px-3.5 py-1.5 rounded-full text-xs border transition-colors ${genre === g ? 'bg-red border-red' : 'border-line text-inkdim'}`}
           >
             {g}
           </button>

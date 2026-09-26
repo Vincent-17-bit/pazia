@@ -117,7 +117,7 @@ export default function SearchOverlay({ open, onClose, onSelect }) {
                 type="button"
                 aria-label="Voice search"
                 onClick={startVoiceSearch}
-                className={`flex-none w-6 h-6 flex items-center justify-center rounded-full ${listening ? 'text-red' : 'text-inkdim'}`}
+                className={`flex-none w-6 h-6 flex items-center justify-center rounded-full transition-colors ${listening ? 'text-red' : 'text-inkdim'}`}
               >
                 <svg viewBox="0 0 24 24" className="w-4 h-4 stroke-current fill-none stroke-2">
                   <rect x="9" y="2" width="6" height="12" rx="3" />
@@ -165,7 +165,7 @@ export default function SearchOverlay({ open, onClose, onSelect }) {
               {results.map((r) => (
                 <button key={`${r.mediaType}-${r.id}`} onClick={() => goToTitle(r)} className="text-left">
                   <div
-                    className="w-full h-[150px] rounded-lg bg-cover bg-center"
+                    className="w-full aspect-[2/3] rounded-lg bg-cover bg-center"
                     style={{ backgroundImage: r.posterPath ? `url(${r.posterPath})` : grad(r.colorSeed ?? 0) }}
                   />
                   <div className="text-xs mt-1.5 leading-snug">{r.title}</div>

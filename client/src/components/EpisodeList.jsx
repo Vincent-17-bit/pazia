@@ -38,7 +38,7 @@ export default function EpisodeList({ mediaType, id, seasonNumber, onPlayEpisode
             className="w-[96px] sm:w-[120px] aspect-[120/68] rounded-md bg-cover bg-center flex-none relative"
             style={{ backgroundImage: ep.stillPath ? `url(${ep.stillPath})` : grad(ep.episodeNumber) }}
           >
-            <span className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 bg-black/40 rounded-md text-xs">▶</span>
+            <span className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-200 bg-black/40 rounded-md text-xs">▶</span>
           </div>
           <div className="min-w-0">
             <div className="text-sm font-medium truncate">{ep.episodeNumber}. {ep.name}</div>
