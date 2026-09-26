@@ -83,6 +83,25 @@ async function resolveMapping(mapping, page = 1) {
   return [];
 }
 
+const ROW_PAGES = 5;
+
+function dedupeItems(items) {
+  const seen = new Set();
+  return items.filter((item) => {
+    const key = `${item.mediaType}-${item.id}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+async function resolveMappingMerged(mapping) {
+  const pages = await Promise.all(
+    Array.from({ length: ROW_PAGES }, (_, i) => resolveMapping(mapping, i + 1).catch(() => []))
+  );
+  return dedupeItems(pages.flat());
+}
+
 export async function getTabItems(tab, page = 1) {
   if (!hasTmdbKey()) return DEMO_ROWS[tab] || DEMO_ROWS.home;
   const mapping = TAB_MAPPING[tab];
@@ -90,9 +109,9 @@ export async function getTabItems(tab, page = 1) {
   return cached(`tab:${tab}:${page}`, TTL, () => resolveMapping(mapping, page));
 }
 
-export async function getRowItems(key, page = 1) {
+export async function getRowItems(key) {
   if (!hasTmdbKey()) return EXTRA_ROWS[key] || [];
   const mapping = ROW_MAPPING[key];
   if (!mapping) return [];
-  return cached(`row:${key}:${page}`, TTL, () => resolveMapping(mapping, page));
+  return cached(`row:${key}:merged`, TTL, () => resolveMappingMerged(mapping));
 }

@@ -1,7 +1,10 @@
+const twoYearsAgo = new Date(Date.now() - 2 * 365 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+const FEATURE_LENGTH = { 'with_runtime.gte': 60, 'vote_count.gte': 20 };
+
 export const TAB_MAPPING = {
   home: { source: 'trending', mediaType: 'all' },
   tvshows: { source: 'discover', mediaType: 'tv', params: { sort_by: 'popularity.desc' } },
-  movies: { source: 'discover', mediaType: 'movie', params: { sort_by: 'popularity.desc' } },
+  movies: { source: 'discover', mediaType: 'movie', params: { sort_by: 'popularity.desc', ...FEATURE_LENGTH } },
   series: { source: 'discover', mediaType: 'tv', params: { sort_by: 'popularity.desc', with_genres: '18' } },
   swahili: { source: 'discover_swahili', mediaType: 'both', params: { with_original_language: 'sw' } },
 };
@@ -9,13 +12,13 @@ export const TAB_MAPPING = {
 export const ROW_MAPPING = {
   trending: { source: 'trending', mediaType: 'all' },
   top_rated: { source: 'discover', mediaType: 'movie', params: { sort_by: 'vote_average.desc', 'vote_count.gte': 200 } },
-  new_releases: { source: 'discover', mediaType: 'movie', params: { sort_by: 'release_date.desc' } },
+  new_releases: { source: 'discover', mediaType: 'movie', params: { sort_by: 'popularity.desc', 'primary_release_date.gte': twoYearsAgo, 'vote_count.gte': 20 } },
   action: { source: 'discover', mediaType: 'movie', params: { with_genres: '28' } },
   drama: { source: 'discover', mediaType: 'movie', params: { with_genres: '18' } },
   romance: { source: 'discover', mediaType: 'movie', params: { with_genres: '10749' } },
   comedy: { source: 'discover', mediaType: 'movie', params: { with_genres: '35' } },
   kids: { source: 'discover', mediaType: 'movie', params: { with_genres: '10751' } },
-  documentaries: { source: 'discover', mediaType: 'movie', params: { with_genres: '99' } },
+  documentaries: { source: 'discover', mediaType: 'movie', params: { with_genres: '99', ...FEATURE_LENGTH } },
   hindi: { source: 'discover', mediaType: 'movie', params: { with_original_language: 'hi' } },
   afro_nollywood: { source: 'discover', mediaType: 'movie', params: { with_original_language: 'yo' } },
   plays_theatre: { source: 'discover_keyword', mediaType: 'movie' },
@@ -89,7 +92,7 @@ export const ROW_MAPPING = {
   faith_inspiration: { source: 'discover_keyword_query', mediaType: 'movie', keywordQuery: 'christian film' },
   feel_good: { source: 'discover_keyword_query', mediaType: 'movie', keywordQuery: 'feel good' },
   date_night: { source: 'discover', mediaType: 'movie', params: { with_genres: '10749|35' } },
-  wild_planet: { source: 'discover_keyword_query', mediaType: 'movie', keywordQuery: 'nature documentary', params: { with_genres: '99' } },
+  wild_planet: { source: 'discover_keyword_query', mediaType: 'movie', keywordQuery: 'nature documentary', params: { with_genres: '99', ...FEATURE_LENGTH } },
   game_day: { source: 'discover_keyword_query', mediaType: 'movie', keywordQuery: 'sports', params: { with_genres: '99|18' } },
   reality_rush: { source: 'discover', mediaType: 'tv', params: { with_genres: '10764' } },
 };
