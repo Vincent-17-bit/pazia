@@ -15,7 +15,7 @@ export default function BottomNav() {
           key={it.to}
           to={it.to}
           end={it.to === '/'}
-          className={({ isActive }) => `flex flex-col items-center gap-1 text-[10px] ${isActive ? 'text-red' : 'text-inkdim'}`}
+          className={({ isActive }) => `flex flex-col items-center gap-1 text-[10px] transition-colors ${isActive ? 'text-red' : 'text-inkdim'}`}
         >
           <svg viewBox="0 0 24 24" className="w-5 h-5 stroke-current fill-none stroke-2">
             <path d={it.icon} />

@@ -33,8 +33,8 @@ export default function Row({ title, items, loading, lazy = false, onItemClick }
       <div className="flex items-baseline justify-between px-5 pb-3">
         <h2 className="text-[17px] font-semibold">{title}</h2>
         <div className="hidden md:flex gap-2">
-          <button aria-label={`Scroll ${title} left`} onClick={() => scrollBy(-1)} className="text-inkdim hover:text-ink">‹</button>
-          <button aria-label={`Scroll ${title} right`} onClick={() => scrollBy(1)} className="text-inkdim hover:text-ink">›</button>
+          <button aria-label={`Scroll ${title} left`} onClick={() => scrollBy(-1)} className="text-inkdim hover:text-ink transition-colors">‹</button>
+          <button aria-label={`Scroll ${title} right`} onClick={() => scrollBy(1)} className="text-inkdim hover:text-ink transition-colors">›</button>
         </div>
       </div>
       {!visible || loading ? (

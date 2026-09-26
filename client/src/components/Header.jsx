@@ -7,7 +7,7 @@ export default function Header({ onMenuClick }) {
       <button
         aria-label="Open menu"
         onClick={onMenuClick}
-        className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-surface2"
+        className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-surface2 transition-colors"
       >
         <svg viewBox="0 0 24 24" className="w-5 h-5 stroke-ink fill-none stroke-2">
           <line x1="4" y1="7" x2="20" y2="7" />

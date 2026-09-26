@@ -156,7 +156,7 @@ export default function TitleContent({ mediaType, id, variant = 'page', onClose,
 
   const item = query.data;
   const rating = getRating(item.mediaType, item.id);
-  const heroHeight = variant === 'modal' ? 'h-[60vh] md:h-[60vh] max-md:h-[40vh]' : 'h-[42vh] min-h-[280px]';
+  const heroHeight = variant === 'modal' ? 'h-[40vh] md:h-[60vh]' : 'h-[42vh] min-h-[280px]';
 
   function goPlay(seasonNumber, episodeNumber) {
     if (mediaType === 'external') {
@@ -229,7 +229,7 @@ export default function TitleContent({ mediaType, id, variant = 'page', onClose,
           ))}
         </div>
 
-        <p className="text-sm text-[#d4d4d8] leading-relaxed mb-5">
+        <p className="text-sm text-inkdim leading-relaxed mb-5">
           <span className={showMore ? '' : 'line-clamp-3'}>{item.overview}</span>
           {item.overview?.length > 140 && (
             <button onClick={() => setShowMore((s) => !s)} className="block text-xs text-ink font-semibold mt-1">
@@ -238,7 +238,7 @@ export default function TitleContent({ mediaType, id, variant = 'page', onClose,
           )}
         </p>
 
-        <div className="flex gap-3 mb-8 flex-wrap overflow-x-auto no-scrollbar relative">
+        <div className="flex gap-3 mb-8 overflow-x-auto no-scrollbar relative">
           <button onClick={onPlay} className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold bg-white text-bg flex-none">
             <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
             Play

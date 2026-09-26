@@ -19,8 +19,12 @@ export default function TitleModal({ background }) {
     scrollRef.current?.scrollTo(0, 0);
   }, [activeType, activeId]);
 
+  const [closing, setClosing] = useState(false);
+
   function close() {
-    navigate(-1);
+    if (closing) return;
+    setClosing(true);
+    setTimeout(() => navigate(-1), 220);
   }
 
   useEffect(() => {
@@ -56,13 +60,18 @@ export default function TitleModal({ background }) {
 
   return (
     <div className="fixed inset-0 z-[120] flex items-end md:items-center justify-center" role="dialog" aria-modal="true">
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={close} />
+      <div
+        className={`absolute inset-0 bg-black/70 backdrop-blur-sm transition-opacity duration-200 ${closing ? 'opacity-0' : 'opacity-100'}`}
+        onClick={close}
+      />
       <div
         ref={scrollRef}
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
-        className="relative w-full md:max-w-3xl md:max-h-[88vh] md:rounded-xl bg-bg overflow-y-auto animate-sheet-up md:animate-none max-h-[92vh]"
+        className={`relative w-full md:max-w-3xl md:max-h-[88vh] md:rounded-xl bg-bg overflow-y-auto max-h-[92vh] transition-opacity duration-200 md:duration-200 ${
+          closing ? 'animate-sheet-down md:animate-none md:opacity-0' : 'animate-sheet-up md:animate-none'
+        }`}
       >
         <div className="md:hidden sticky top-0 z-10 flex justify-center pt-2 pb-1">
           <div className="w-10 h-1 rounded-full bg-white/30" />
