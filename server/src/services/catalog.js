@@ -7,8 +7,8 @@ import { DEMO_ROWS, EXTRA_ROWS } from '../data/demo.js';
 
 const TTL = 20 * 60 * 1000;
 
-async function fetchTrending() {
-  const data = await tmdbFetch('/trending/all/day');
+async function fetchTrending(page = 1) {
+  const data = await tmdbFetch('/trending/all/day', { page });
   return normalizeList(data.results);
 }
 
@@ -72,7 +72,7 @@ async function fetchMerge(mediaType, paramsList, page) {
 }
 
 async function resolveMapping(mapping, page = 1) {
-  if (mapping.source === 'trending') return fetchTrending();
+  if (mapping.source === 'trending') return fetchTrending(page);
   if (mapping.source === 'discover') return fetchDiscover(mapping.mediaType, mapping.params, page);
   if (mapping.source === 'discover_swahili') return fetchSwahili(page);
   if (mapping.source === 'discover_keyword') return fetchByKeyword(mapping.mediaType, page);
