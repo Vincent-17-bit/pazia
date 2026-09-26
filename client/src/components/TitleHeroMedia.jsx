@@ -34,7 +34,7 @@ export default function TitleHeroMedia({ backdropPath, colorSeed, trailerKey, he
   const timers = useRef([]);
   const hideTimerRef = useRef(null);
   const playerRef = useRef(null);
-  const ytTargetRef = useRef(null);
+  const wrapperRef = useRef(null);
   const engagedRef = useRef(false);
   const prefersHoverRef = useRef(true);
 
@@ -65,23 +65,37 @@ export default function TitleHeroMedia({ backdropPath, colorSeed, trailerKey, he
     return () => timers.current.forEach(clearTimeout);
   }, [trailerKey]);
 
-  // create the real YT player once the trailer area is ready
+  // create the real YT player once the trailer area is ready.
+  // Mounted on a plain DOM node created here (not a React-ref'd JSX element),
+  // because the YouTube API *replaces* whatever element it's given with its
+  // own iframe - if that element were React-managed, React would later try
+  // to remove a node YouTube already swapped out, and crash.
   useEffect(() => {
-    if (!showTrailer || !trailerKey || !ytTargetRef.current) return;
+    if (!showTrailer || !trailerKey || !wrapperRef.current) return;
     let cancelled = false;
+    const mountEl = document.createElement('div');
+    mountEl.style.position = 'absolute';
+    mountEl.style.inset = '0';
+    mountEl.style.width = '100%';
+    mountEl.style.height = '100%';
+    wrapperRef.current.appendChild(mountEl);
+
     loadYouTubeApi().then((YT) => {
-      if (cancelled || !ytTargetRef.current) return;
-      playerRef.current = new YT.Player(ytTargetRef.current, {
+      if (cancelled) return;
+      playerRef.current = new YT.Player(mountEl, {
         videoId: trailerKey,
         playerVars: { autoplay: 1, mute: 1, controls: 0, modestbranding: 1, playsinline: 1, rel: 0 },
         events: {
           onReady: (e) => {
             const ifr = e.target.getIframe?.();
             if (ifr) {
-              ifr.style.position = 'absolute';
-              ifr.style.inset = '0';
               ifr.style.width = '100%';
               ifr.style.height = '100%';
+            }
+            // user already clicked Play before the player finished loading - catch up now
+            if (engagedRef.current) {
+              e.target.unMute();
+              e.target.playVideo();
             }
           },
           onStateChange: (e) => {
@@ -99,10 +113,12 @@ export default function TitleHeroMedia({ backdropPath, colorSeed, trailerKey, he
         },
       });
     });
+
     return () => {
       cancelled = true;
       playerRef.current?.destroy?.();
       playerRef.current = null;
+      mountEl.remove();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showTrailer, trailerKey]);
@@ -214,7 +230,7 @@ export default function TitleHeroMedia({ backdropPath, colorSeed, trailerKey, he
       />
       {showTrailer && (
         <div
-          ref={ytTargetRef}
+          ref={wrapperRef}
           className="absolute inset-0 w-full h-full"
           style={{ pointerEvents: engaged ? 'auto' : 'none' }}
         />
