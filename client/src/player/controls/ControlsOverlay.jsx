@@ -42,7 +42,11 @@ export default function ControlsOverlay({
           className="absolute top-0 left-0 right-0 flex items-center gap-3 px-4 pt-[calc(14px+env(safe-area-inset-top,0px))] pb-6"
           style={{ background: 'linear-gradient(180deg, rgba(0,0,0,0.75), transparent)' }}
         >
-          <button onClick={onBack} aria-label="Back" className="w-10 h-10 min-w-[44px] min-h-[44px] flex items-center justify-center">
+          <button
+            onClick={(e) => { e.stopPropagation(); onBack(); }}
+            aria-label="Back"
+            className="w-10 h-10 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full hover:bg-white/10 transition-colors"
+          >
             <Icon d="M15 19l-7-7 7-7" />
           </button>
           <div className="min-w-0">
@@ -53,7 +57,11 @@ export default function ControlsOverlay({
           {mediaType && tmdbId && (
             <MyListButton mediaType={mediaType} tmdbId={tmdbId} variant="icon" size="md" bordered={false} />
           )}
-          <button onClick={(e) => { e.stopPropagation(); onOpenSettings(); }} aria-label="Settings" className="w-10 h-10 min-w-[44px] min-h-[44px] flex items-center justify-center">
+          <button
+            onClick={(e) => { e.stopPropagation(); onOpenSettings(); }}
+            aria-label="Settings"
+            className="w-10 h-10 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full hover:bg-white/10 transition-colors"
+          >
             <Icon d="M12 15a3 3 0 100-6 3 3 0 000 6zM19 12a7 7 0 00-.1-1.2l2-1.6-2-3.4-2.3 1a7 7 0 00-2-1.2L14 3h-4l-.6 2.6a7 7 0 00-2 1.2l-2.3-1-2 3.4 2 1.6A7 7 0 005 12c0 .4 0 .8.1 1.2l-2 1.6 2 3.4 2.3-1a7 7 0 002 1.2L10 21h4l.6-2.6a7 7 0 002-1.2l2.3 1 2-3.4-2-1.6c.1-.4.1-.8.1-1.2z" />
           </button>
         </div>

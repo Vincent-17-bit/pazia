@@ -54,7 +54,7 @@ export default function MyListButton({ mediaType, tmdbId, variant = 'icon', size
       disabled={pending}
       aria-label={label}
       aria-pressed={inList}
-      className={`${BTN_SIZE[size]} rounded-full flex items-center justify-center disabled:opacity-60 transition-colors ${
+      className={`${BTN_SIZE[size]} rounded-full flex items-center justify-center disabled:opacity-60 transition-colors hover:bg-white/10 ${
         bordered ? `border ${inList ? 'border-red bg-red/20' : 'border-white/50'}` : ''
       } ${className}`}
     >
