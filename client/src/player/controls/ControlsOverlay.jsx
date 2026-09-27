@@ -99,7 +99,7 @@ export default function ControlsOverlay({
             />
           </div>
 
-          <div className="flex items-center gap-3 text-white">
+          <div className="flex items-center gap-3 text-white overflow-x-auto">
             <Tooltip label={playing ? 'Pause' : 'Play'}>
               <button onClick={onTogglePlay} aria-label={playing ? 'Pause' : 'Play'} className="min-w-[44px] min-h-[44px] flex items-center justify-center">
                 {playing ? <Icon d="M8 5v14M16 5v14" /> : <Icon d="M7 4l13 8-13 8V4z" />}
