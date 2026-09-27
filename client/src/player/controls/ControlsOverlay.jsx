@@ -57,11 +57,6 @@ export default function ControlsOverlay({
             {subtitle && <div className="text-xs text-white/60">{subtitle}</div>}
           </div>
           <div className="flex-1" />
-          {mediaType && tmdbId && (
-            <Tooltip label="My List">
-              <MyListButton mediaType={mediaType} tmdbId={tmdbId} variant="icon" size="md" bordered={false} />
-            </Tooltip>
-          )}
           <Tooltip label="Settings">
             <button
               onClick={(e) => { e.stopPropagation(); onOpenSettings(); }}
@@ -209,6 +204,11 @@ export default function ControlsOverlay({
                 <Icon d={fullscreen ? 'M9 4v4H5M15 4v4h4M9 20v-4H5M15 20v-4h4' : 'M4 9V5h4M20 9V5h-4M4 15v4h4M20 15v4h-4'} />
               </button>
             </Tooltip>
+            {mediaType && tmdbId && (
+              <Tooltip label="My List">
+                <MyListButton mediaType={mediaType} tmdbId={tmdbId} variant="icon" size="md" bordered={false} />
+              </Tooltip>
+            )}
           </div>
         </div>
       </div>
