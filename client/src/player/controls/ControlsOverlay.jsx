@@ -45,7 +45,7 @@ export default function ControlsOverlay({
         >
           <Tooltip label="Back">
             <button
-              onClick={(e) => { e.stopPropagation(); onBack(); }}
+              onClick={(e) => { window.alert('BACK CLICKED'); e.stopPropagation(); onBack(); }}
               aria-label="Back"
               className="w-10 h-10 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full hover:bg-white/10 transition-colors"
             >
