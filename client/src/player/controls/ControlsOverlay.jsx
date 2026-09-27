@@ -68,20 +68,20 @@ export default function ControlsOverlay({
           </Tooltip>
         </div>
 
-        <div className="absolute inset-0 flex items-center justify-center gap-10">
+        <div className="absolute inset-0 flex items-center justify-center gap-10 pointer-events-none">
           <Tooltip label="Back 10 seconds">
-            <button onClick={() => onSeekBy(-10)} aria-label="Back 10 seconds" className="min-w-[44px] min-h-[44px] flex flex-col items-center text-white/90">
+            <button onClick={() => onSeekBy(-10)} aria-label="Back 10 seconds" className="pointer-events-auto min-w-[44px] min-h-[44px] flex flex-col items-center text-white/90">
               <Icon d="M12 5V1L7 6l5 5V7a5 5 0 11-5 5H5a7 7 0 107-7z" className="w-7 h-7 stroke-white" />
               <span className="text-[10px] -mt-1">10</span>
             </button>
           </Tooltip>
           <Tooltip label={playing ? 'Pause' : 'Play'}>
-            <button onClick={onTogglePlay} aria-label={playing ? 'Pause' : 'Play'} className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center">
+            <button onClick={onTogglePlay} aria-label={playing ? 'Pause' : 'Play'} className="pointer-events-auto w-16 h-16 rounded-full bg-white/10 flex items-center justify-center">
               {playing ? <Icon d="M8 5v14M16 5v14" className="w-7 h-7 stroke-white" /> : <Icon d="M7 4l13 8-13 8V4z" className="w-7 h-7 stroke-white" />}
             </button>
           </Tooltip>
           <Tooltip label="Forward 10 seconds">
-            <button onClick={() => onSeekBy(10)} aria-label="Forward 10 seconds" className="min-w-[44px] min-h-[44px] flex flex-col items-center text-white/90">
+            <button onClick={() => onSeekBy(10)} aria-label="Forward 10 seconds" className="pointer-events-auto min-w-[44px] min-h-[44px] flex flex-col items-center text-white/90">
               <Icon d="M12 5V1l5 5-5 5V7a5 5 0 105 5h2a7 7 0 10-7-7z" className="w-7 h-7 stroke-white" />
               <span className="text-[10px] -mt-1">10</span>
             </button>
