@@ -31,5 +31,5 @@ export async function resolvePlayback(nasaId) {
   const items = data.collection?.items || [];
   const mp4 = items.map((i) => i.href).find((h) => h.endsWith('.mp4') && !h.includes('~orig'));
   if (!mp4) throw new Error('no mp4 asset found');
-  return { type: 'mp4', url: mp4 };
+  return { type: 'mp4', url: mp4.replace(/^http:/, 'https:') };
 }
