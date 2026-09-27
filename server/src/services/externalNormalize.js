@@ -1,5 +1,5 @@
 // shape matches normalizeItem() so PosterCard/Row need no changes
-export function normalizeExternal({ source, refId, title, overview, posterPath, year, mediaType = 'movie', playback = null, license = 'public_domain' }) {
+export function normalizeExternal({ source, refId, title, overview, posterPath, year, mediaType = 'movie', playback = null, license = 'public_domain', runtimeMinutes = null }) {
   return {
     id: `${source}:${refId}`,
     mediaType: 'external',
@@ -16,5 +16,6 @@ export function normalizeExternal({ source, refId, title, overview, posterPath, 
     refId: String(refId),
     playback,
     license,
+    runtimeMinutes,
   };
 }
