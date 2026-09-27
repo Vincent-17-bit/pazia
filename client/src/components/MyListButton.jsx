@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, forwardRef } from 'react';
 import { useMyList } from '../context/MyListContext.jsx';
 
 const ICON_SIZE = { sm: 'w-3.5 h-3.5', md: 'w-5 h-5' };
@@ -14,7 +14,7 @@ function Icon({ inList, className }) {
 
 // Reads/writes the single MyListContext source of truth. Every instance of
 // this button for the same title stays in sync since they all share it.
-export default function MyListButton({ mediaType, tmdbId, variant = 'icon', size = 'sm', bordered = true, className = '' }) {
+const MyListButton = forwardRef(function MyListButton({ mediaType, tmdbId, variant = 'icon', size = 'sm', bordered = true, className = '', ...rest }, ref) {
   const { has, toggle, isPending } = useMyList();
   const [pop, setPop] = useState(false);
   const inList = has(mediaType, tmdbId);
@@ -34,6 +34,7 @@ export default function MyListButton({ mediaType, tmdbId, variant = 'icon', size
   if (variant === 'pill') {
     return (
       <button
+        ref={ref}
         onClick={onClick}
         disabled={pending}
         aria-label={label}
@@ -41,6 +42,7 @@ export default function MyListButton({ mediaType, tmdbId, variant = 'icon', size
         className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold border flex-none disabled:opacity-60 transition-colors ${
           inList ? 'bg-red border-red' : 'bg-white/10 border-white/25'
         } ${className}`}
+        {...rest}
       >
         <Icon inList={inList} className={`w-4 h-4 ${pop ? 'animate-scale-pop' : ''}`} />
         {inList ? 'Added' : 'My List'}
@@ -50,6 +52,7 @@ export default function MyListButton({ mediaType, tmdbId, variant = 'icon', size
 
   return (
     <button
+      ref={ref}
       onClick={onClick}
       disabled={pending}
       aria-label={label}
@@ -57,8 +60,11 @@ export default function MyListButton({ mediaType, tmdbId, variant = 'icon', size
       className={`${BTN_SIZE[size]} rounded-full flex items-center justify-center disabled:opacity-60 transition-colors hover:bg-white/10 ${
         bordered ? `border ${inList ? 'border-red bg-red/20' : 'border-white/50'}` : ''
       } ${className}`}
+      {...rest}
     >
       <Icon inList={inList} className={`${ICON_SIZE[size]} ${inList && !bordered ? 'text-red' : ''} ${pop ? 'animate-scale-pop' : ''}`} />
     </button>
   );
-}
+});
+
+export default MyListButton;
