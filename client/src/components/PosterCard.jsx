@@ -4,6 +4,7 @@ import { api } from '../lib/api.js';
 import { useRatings } from '../context/RatingsContext.jsx';
 import { useHoverIntent } from '../hooks/useHoverIntent.js';
 import MyListButton from './MyListButton.jsx';
+import Tooltip from './Tooltip.jsx';
 
 const GRADIENTS = [
   ['#3a0d10', '#0b0b0f'], ['#4a1116', '#1a0508'], ['#2a0a10', '#0b0b0f'],
@@ -94,19 +95,29 @@ export default function PosterCard({ item, wide = false, onItemClick }) {
               {item.title}
             </div>
             <div className="flex items-center gap-1.5">
-              <button onClick={onPlay} aria-label="Play" className="w-7 h-7 rounded-full bg-white flex items-center justify-center">
-                <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 ml-0.5" fill="black"><path d="M8 5v14l11-7z" /></svg>
-              </button>
-              <MyListButton mediaType={item.mediaType} tmdbId={item.id} variant="icon" size="sm" />
-              <button onClick={(e) => onRate(e, 'up')} aria-label="Thumbs up" className={`w-7 h-7 rounded-full border flex items-center justify-center ${rating === 'up' ? 'border-red bg-red/20' : 'border-white/50'}`}>
-                <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 stroke-white fill-none stroke-2"><path d="M7 11v9H4v-9h3zm0 0l4-8a2 2 0 012 2v5h5a2 2 0 012 2l-1.5 6a2 2 0 01-2 1.5H7" /></svg>
-              </button>
-              <button onClick={(e) => onRate(e, 'down')} aria-label="Thumbs down" className={`w-7 h-7 rounded-full border flex items-center justify-center ${rating === 'down' ? 'border-red bg-red/20' : 'border-white/50'}`}>
-                <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 stroke-white fill-none stroke-2" style={{ transform: 'rotate(180deg)' }}><path d="M7 11v9H4v-9h3zm0 0l4-8a2 2 0 012 2v5h5a2 2 0 012 2l-1.5 6a2 2 0 01-2 1.5H7" /></svg>
-              </button>
-              <button onClick={openModal} aria-label="More info" className="w-7 h-7 rounded-full border border-white/50 flex items-center justify-center ml-auto">
-                <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 stroke-white fill-none stroke-2"><path d="M6 9l6 6 6-6" /></svg>
-              </button>
+              <Tooltip label="Play">
+                <button onClick={onPlay} aria-label="Play" className="w-7 h-7 rounded-full bg-white flex items-center justify-center">
+                  <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 ml-0.5" fill="black"><path d="M8 5v14l11-7z" /></svg>
+                </button>
+              </Tooltip>
+              <Tooltip label="My List">
+                <MyListButton mediaType={item.mediaType} tmdbId={item.id} variant="icon" size="sm" />
+              </Tooltip>
+              <Tooltip label="Thumbs up">
+                <button onClick={(e) => onRate(e, 'up')} aria-label="Thumbs up" className={`w-7 h-7 rounded-full border flex items-center justify-center ${rating === 'up' ? 'border-red bg-red/20' : 'border-white/50'}`}>
+                  <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 stroke-white fill-none stroke-2"><path d="M7 11v9H4v-9h3zm0 0l4-8a2 2 0 012 2v5h5a2 2 0 012 2l-1.5 6a2 2 0 01-2 1.5H7" /></svg>
+                </button>
+              </Tooltip>
+              <Tooltip label="Thumbs down">
+                <button onClick={(e) => onRate(e, 'down')} aria-label="Thumbs down" className={`w-7 h-7 rounded-full border flex items-center justify-center ${rating === 'down' ? 'border-red bg-red/20' : 'border-white/50'}`}>
+                  <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 stroke-white fill-none stroke-2" style={{ transform: 'rotate(180deg)' }}><path d="M7 11v9H4v-9h3zm0 0l4-8a2 2 0 012 2v5h5a2 2 0 012 2l-1.5 6a2 2 0 01-2 1.5H7" /></svg>
+                </button>
+              </Tooltip>
+              <Tooltip label="More info">
+                <button onClick={openModal} aria-label="More info" className="w-7 h-7 rounded-full border border-white/50 flex items-center justify-center ml-auto">
+                  <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 stroke-white fill-none stroke-2"><path d="M6 9l6 6 6-6" /></svg>
+                </button>
+              </Tooltip>
             </div>
           </div>
         )}
