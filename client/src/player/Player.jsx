@@ -84,7 +84,7 @@ export default function Player({
 
   // weak-connection toast: only meaningful on Auto (adaptive) quality
   useEffect(() => {
-    if (state.buffering && state.activeLevel === -1) {
+    if (state.buffering) {
       weakConnTimerRef.current = setTimeout(() => setWeakConnection(true), 5000);
     } else {
       clearTimeout(weakConnTimerRef.current);
@@ -301,6 +301,7 @@ export default function Player({
           onQualityChange={setQuality}
           dataSaver={dataSaver}
           onDataSaverChange={toggleDataSaver}
+          weakConnection={weakConnection}
         />
       )}
 
