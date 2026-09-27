@@ -219,7 +219,7 @@ export default function Player({
       onTouchEnd={onTouchEndContainer}
       style={{ ...subtitleCssVars(subSettings), '--video-fit': screenFit }}
     >
-      <div className="player-video-fit w-full h-full" onClick={togglePlay}>
+      <div className="player-video-fit w-full h-full pointer-events-none">
         <PlayerCore
           ref={coreRef}
           source={source}
