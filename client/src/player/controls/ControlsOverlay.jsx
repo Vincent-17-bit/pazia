@@ -45,7 +45,7 @@ export default function ControlsOverlay({
         >
           <Tooltip label="Back">
             <button
-              onClick={(e) => { window.alert('BACK CLICKED'); e.stopPropagation(); onBack(); }}
+              onClick={(e) => { e.stopPropagation(); onBack(); }}
               aria-label="Back"
               className="w-10 h-10 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full hover:bg-white/10 transition-colors"
             >
@@ -56,16 +56,6 @@ export default function ControlsOverlay({
             <div className="text-sm font-semibold truncate">{title}</div>
             {subtitle && <div className="text-xs text-white/60">{subtitle}</div>}
           </div>
-          <div className="flex-1" />
-          <Tooltip label="Settings">
-            <button
-              onClick={(e) => { e.stopPropagation(); onOpenSettings(); }}
-              aria-label="Settings"
-              className="w-10 h-10 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full hover:bg-white/10 transition-colors"
-            >
-              <Icon d="M12 15a3 3 0 100-6 3 3 0 000 6zM19 12a7 7 0 00-.1-1.2l2-1.6-2-3.4-2.3 1a7 7 0 00-2-1.2L14 3h-4l-.6 2.6a7 7 0 00-2 1.2l-2.3-1-2 3.4 2 1.6A7 7 0 005 12c0 .4 0 .8.1 1.2l-2 1.6 2 3.4 2.3-1a7 7 0 002 1.2L10 21h4l.6-2.6a7 7 0 002-1.2l2.3 1 2-3.4-2-1.6c.1-.4.1-.8.1-1.2z" />
-            </button>
-          </Tooltip>
         </div>
 
         <div className="absolute inset-0 flex items-center justify-center gap-10 pointer-events-none">
@@ -209,6 +199,15 @@ export default function ControlsOverlay({
                 <MyListButton mediaType={mediaType} tmdbId={tmdbId} variant="icon" size="md" bordered={false} />
               </Tooltip>
             )}
+            <Tooltip label="Settings">
+              <button
+                onClick={(e) => { e.stopPropagation(); onOpenSettings(); }}
+                aria-label="Settings"
+                className="min-w-[44px] min-h-[44px] flex items-center justify-center"
+              >
+                <Icon d="M12 15a3 3 0 100-6 3 3 0 000 6zM19 12a7 7 0 00-.1-1.2l2-1.6-2-3.4-2.3 1a7 7 0 00-2-1.2L14 3h-4l-.6 2.6a7 7 0 00-2 1.2l-2.3-1-2 3.4 2 1.6A7 7 0 005 12c0 .4 0 .8.1 1.2l-2 1.6 2 3.4 2.3-1a7 7 0 002 1.2L10 21h4l.6-2.6a7 7 0 002-1.2l2.3 1 2-3.4-2-1.6c.1-.4.1-.8.1-1.2z" />
+              </button>
+            </Tooltip>
           </div>
         </div>
       </div>

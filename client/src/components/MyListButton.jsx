@@ -21,7 +21,6 @@ const MyListButton = forwardRef(function MyListButton({ mediaType, tmdbId, varia
   const pending = isPending(mediaType, tmdbId);
 
   function onClick(e) {
-    window.alert('MY LIST CLICKED');
     e.preventDefault();
     e.stopPropagation();
     if (pending) return;
