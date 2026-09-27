@@ -38,7 +38,7 @@ export default function ControlsOverlay({
         </div>
       )}
 
-      <div className={`absolute inset-0 transition-opacity duration-200 ${visible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+      <div className={`absolute inset-0 z-10 transition-opacity duration-200 ${visible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
         <div
           className="absolute top-0 left-0 right-0 flex items-center gap-3 px-4 pt-[calc(14px+env(safe-area-inset-top,0px))] pb-6"
           style={{ background: 'linear-gradient(180deg, rgba(0,0,0,0.75), transparent)' }}
