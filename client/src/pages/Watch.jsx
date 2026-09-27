@@ -13,7 +13,6 @@ export default function Watch() {
   const episode = params.get('episode') ? Number(params.get('episode')) : null;
 
   function goBack() {
-    console.log('[debug] back clicked, location.key=', location.key);
     if (location.key !== 'default') navigate(-1);
     else navigate(`/title/${mediaType}/${id}`, { replace: true });
   }
