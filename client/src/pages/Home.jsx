@@ -130,7 +130,9 @@ export default function Home({ selectedCategory }) {
 
   return (
     <>
-      <TabsBar active={tab} onChange={setTab} />
+      <div className="sticky top-0 z-40 h-0">
+        <TabsBar active={tab} onChange={setTab} />
+      </div>
       <div className="pt-[calc(120px+env(safe-area-inset-top,0px))]">
         <Hero
           featured={featured}

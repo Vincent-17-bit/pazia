@@ -6,12 +6,12 @@ import MyListButton from './MyListButton.jsx';
 export default function Hero({ featured, strip, onStripSelect, kicker }) {
   const location = useLocation();
   if (!featured) {
-    return <div className="h-[64vh] min-h-[420px] bg-surface animate-pulse" />;
+    return <div className="h-[64dvh] min-h-[420px] bg-surface animate-pulse" />;
   }
   const bg = featured.backdropPath ? `url(${featured.backdropPath})` : grad(featured.colorSeed ?? 0);
 
   return (
-    <section className="relative h-[64vh] min-h-[420px] overflow-hidden">
+    <section className="relative h-[64dvh] min-h-[420px] overflow-hidden">
       <div className="absolute inset-0 bg-cover bg-center transition-opacity duration-400" style={{ backgroundImage: bg }} />
       <div
         className="absolute inset-0"

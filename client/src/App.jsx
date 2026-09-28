@@ -32,9 +32,11 @@ export default function App() {
   }
 
   return (
-    <>
-      <Header onMenuClick={() => setMenuOpen(true)} />
-      <main className="pb-20 md:pb-0">
+    <div className="relative h-dvh flex flex-col overflow-hidden">
+      <main className="app-scroll flex-1 min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain">
+        <div className="sticky top-0 z-[110] h-0">
+          <Header onMenuClick={() => setMenuOpen(true)} />
+        </div>
         <Routes location={background || location}>
           <Route path="/" element={<Home selectedCategory={selectedCategory} />} />
           <Route path="/search" element={<Search />} />
@@ -67,6 +69,6 @@ export default function App() {
         onClose={() => setSearchOpen(false)}
         onSelect={() => { setSearchOpen(false); setMenuOpen(false); }}
       />
-    </>
+    </div>
   );
 }

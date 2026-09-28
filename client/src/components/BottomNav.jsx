@@ -9,7 +9,7 @@ const ITEMS = [
 
 export default function BottomNav() {
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 flex justify-around bg-bg/95 backdrop-blur border-t border-line py-2 pb-[calc(8px+env(safe-area-inset-bottom,0px))]">
+    <nav className="md:hidden flex-none z-40 flex justify-around bg-bg/95 backdrop-blur border-t border-line py-2 pb-[calc(8px+env(safe-area-inset-bottom,0px))]">
       {ITEMS.map((it) => (
         <NavLink
           key={it.to}

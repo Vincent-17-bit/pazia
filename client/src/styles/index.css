@@ -13,16 +13,16 @@
 }
 
 * { box-sizing: border-box; }
-html, body, #root { height: 100%; }
-html { scroll-padding-top: calc(120px + env(safe-area-inset-top, 0px)); overflow-x: hidden; }
+html, body, #root { height: 100%; margin: 0; padding: 0; overflow: hidden; }
+.app-scroll { scroll-padding-top: calc(120px + env(safe-area-inset-top, 0px)); }
 body {
   background: var(--bg);
   color: var(--ink);
   font-family: 'Inter', sans-serif;
   -webkit-font-smoothing: antialiased;
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-  overflow-x: hidden;
+  overscroll-behavior: none;
 }
+img, video { max-width: 100%; }
 h1, h2, h3, .brand { font-family: 'Poppins', sans-serif; }
 
 .no-scrollbar::-webkit-scrollbar { display: none; }

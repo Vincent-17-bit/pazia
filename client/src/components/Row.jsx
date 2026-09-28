@@ -40,7 +40,7 @@ export default function Row({ title, items, loading, lazy = false, onItemClick }
       {!visible || loading ? (
         <SkeletonRow />
       ) : (
-        <div ref={trackRef} className="flex gap-3 overflow-x-auto no-scrollbar px-5 pb-1.5">
+        <div ref={trackRef} className="flex gap-3 overflow-x-auto overscroll-x-contain no-scrollbar px-5 pb-1.5">
           {items?.map((item) => (
             <PosterCard key={`${item.mediaType}-${item.id}`} item={item} onItemClick={onItemClick} />
           ))}

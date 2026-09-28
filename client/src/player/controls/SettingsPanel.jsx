@@ -156,7 +156,7 @@ export default function SettingsPanel({
         ref={sheetRef}
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
-        className="mt-auto md:mt-0 w-full md:w-[380px] md:h-full max-h-[85vh] md:max-h-none overflow-y-auto bg-black rounded-t-2xl md:rounded-none border-t md:border-t-0 md:border-l border-white/25 px-5 pb-[calc(20px+env(safe-area-inset-bottom,0px))] pt-3 md:pt-5"
+        className="mt-auto md:mt-0 w-full md:w-[380px] md:h-full max-h-[85dvh] md:max-h-none overflow-y-auto bg-black rounded-t-2xl md:rounded-none border-t md:border-t-0 md:border-l border-white/25 px-5 pb-[calc(20px+env(safe-area-inset-bottom,0px))] pt-3 md:pt-5"
       >
         <div className="md:hidden flex justify-center pb-2">
           <div className="w-10 h-1 rounded-full bg-white/30" />

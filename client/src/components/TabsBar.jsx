@@ -20,7 +20,7 @@ export default function TabsBar({ active, onChange }) {
       role="tablist"
       aria-label="Browse"
       onKeyDown={onKeyDown}
-      className="fixed left-0 right-0 z-40 flex gap-2.5 overflow-x-auto no-scrollbar px-5 py-3 top-[calc(66px+env(safe-area-inset-top,0px))] bg-gradient-to-b from-bg/85 to-transparent"
+      className="absolute left-0 right-0 z-40 flex gap-2.5 overflow-x-auto overscroll-x-contain no-scrollbar px-5 py-3 top-[calc(66px+env(safe-area-inset-top,0px))] bg-gradient-to-b from-bg/85 to-transparent"
     >
       {TABS.map((t) => (
         <button

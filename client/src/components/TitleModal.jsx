@@ -69,7 +69,7 @@ export default function TitleModal({ background }) {
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
-        className={`relative w-full md:max-w-3xl md:max-h-[88vh] md:rounded-xl bg-bg overflow-y-auto max-h-[92vh] transition-opacity duration-200 md:duration-200 ${
+        className={`relative w-full md:max-w-3xl md:max-h-[88dvh] md:rounded-xl bg-bg overflow-y-auto max-h-[92dvh] transition-opacity duration-200 md:duration-200 ${
           closing ? 'animate-sheet-down md:animate-none md:opacity-0' : 'animate-sheet-up md:animate-none'
         }`}
       >

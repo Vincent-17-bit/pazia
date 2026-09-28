@@ -140,7 +140,7 @@ export default function TitleContent({ mediaType, id, variant = 'page', onClose,
 
   if (query.isLoading) {
     return (
-      <div className={variant === 'modal' ? 'h-[60vh] animate-pulse bg-surface' : 'pt-[calc(120px+env(safe-area-inset-top,0px))] px-5'}>
+      <div className={variant === 'modal' ? 'h-[60dvh] animate-pulse bg-surface' : 'pt-[calc(120px+env(safe-area-inset-top,0px))] px-5'}>
         {variant === 'page' && <div className="h-40 bg-surface animate-pulse rounded-lg" />}
       </div>
     );
@@ -156,7 +156,7 @@ export default function TitleContent({ mediaType, id, variant = 'page', onClose,
 
   const item = query.data;
   const rating = getRating(item.mediaType, item.id);
-  const heroHeight = variant === 'modal' ? 'h-[40vh] md:h-[60vh]' : 'h-[42vh] min-h-[280px]';
+  const heroHeight = variant === 'modal' ? 'h-[40dvh] md:h-[60dvh]' : 'h-[42dvh] min-h-[280px]';
 
   function goPlay(seasonNumber, episodeNumber) {
     if (mediaType === 'external') {

@@ -37,7 +37,7 @@ export default function ContinueWatchingRow({ items, loading, onSeedDemo }) {
           </button>
         )}
       </div>
-      <div className="flex gap-3 overflow-x-auto no-scrollbar px-5 pb-1.5">
+      <div className="flex gap-3 overflow-x-auto overscroll-x-contain no-scrollbar px-5 pb-1.5">
         {items.map((it) => {
           const bg = it.posterPath ? `url(${it.posterPath})` : grad(it.colorSeed ?? 0);
           const href = it.season
