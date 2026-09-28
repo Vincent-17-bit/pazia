@@ -80,3 +80,44 @@ h1, h2, h3, .brand { font-family: 'Poppins', sans-serif; }
   to { opacity: 1; transform: scale(1); }
 }
 .animate-tooltip-in { animation: tooltip-in 150ms ease-out; }
+
+.player-root {
+  --sat: env(safe-area-inset-top, 0px);
+  --sar: env(safe-area-inset-right, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+  --sal: env(safe-area-inset-left, 0px);
+  --ph: 100dvh;
+  --pw: 100dvw;
+}
+.player-forced-landscape {
+  --sat: env(safe-area-inset-right, 0px);
+  --sar: env(safe-area-inset-bottom, 0px);
+  --sab: env(safe-area-inset-left, 0px);
+  --sal: env(safe-area-inset-top, 0px);
+  --ph: 100dvw;
+  --pw: 100dvh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100dvh;
+  height: 100dvw;
+  transform-origin: 0 0;
+  transform: translateX(100dvw) rotate(90deg);
+  background: #000;
+}
+@supports not (width: 1dvw) {
+  .player-root { --ph: 100vh; --pw: 100vw; }
+  .player-forced-landscape {
+    --ph: 100vw;
+    --pw: 100vh;
+    width: 100vh;
+    height: 100vw;
+    transform: translateX(100vw) rotate(90deg);
+  }
+}
+.pl-ic { width: clamp(20px, calc(var(--ph) * 0.055), 26px); height: clamp(20px, calc(var(--ph) * 0.055), 26px); }
+.pl-ic-lg { width: clamp(24px, calc(var(--ph) * 0.075), 32px); height: clamp(24px, calc(var(--ph) * 0.075), 32px); }
+.pl-play { width: clamp(48px, calc(var(--ph) * 0.15), 68px); height: clamp(48px, calc(var(--ph) * 0.15), 68px); }
+.pl-vol { width: clamp(64px, calc(var(--pw) * 0.12), 120px); }
+.pl-seek::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 0; height: 0; }
+.pl-seek::-moz-range-thumb { width: 0; height: 0; border: 0; }

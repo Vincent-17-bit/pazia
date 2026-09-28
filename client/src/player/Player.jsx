@@ -7,6 +7,7 @@ import ErrorOverlay from './ErrorOverlay.jsx';
 import BufferingSpinner from './BufferingSpinner.jsx';
 import { useSubtitleSettings, subtitleCssVars } from './hooks/useSubtitleSettings.js';
 import { loadPlayerPrefs, savePlayerPrefs } from './hooks/usePlayerPrefs.js';
+import { useOrientation } from './hooks/useOrientation.js';
 import { parseVtt, getActiveCue } from './utils/vtt.js';
 
 export default function Player({
@@ -16,6 +17,9 @@ export default function Player({
 }) {
   const coreRef = useRef(null);
   const containerRef = useRef(null);
+  const orient = useOrientation(containerRef);
+  const landscape = orient.isLandscape;
+  const forced = orient.mode === 'forced';
   const hideTimerRef = useRef(null);
   const lastTapRef = useRef({ t: 0, side: null });
   const flashTimerRef = useRef(null);
@@ -30,6 +34,7 @@ export default function Player({
   });
   const [controlsVisible, setControlsVisible] = useState(true);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [settingsView, setSettingsView] = useState('main');
   const [screenFit, setScreenFit] = useState('contain');
   const [fullscreen, setFullscreen] = useState(false);
   const [pipActive, setPipActive] = useState(false);
@@ -163,7 +168,7 @@ export default function Player({
       else if (e.key === 'ArrowUp') { e.preventDefault(); setVolume(Math.min(1, state.volume + 0.1)); }
       else if (e.key === 'ArrowDown') { e.preventDefault(); setVolume(Math.max(0, state.volume - 0.1)); }
       else if (e.key.toLowerCase() === 'm') toggleMute();
-      else if (e.key.toLowerCase() === 'f') toggleFullscreen();
+      else if (e.key.toLowerCase() === 'f' && !forced) toggleFullscreen();
       showControls();
     }
     document.addEventListener('keydown', onKey);
@@ -175,8 +180,10 @@ export default function Player({
     if (settingsOpen) return;
     if (e.target.closest('button, input, select, a, [role="button"]')) return;
     const rect = containerRef.current.getBoundingClientRect();
-    const x = e.changedTouches[0].clientX - rect.left;
-    const side = x < rect.width * 0.4 ? 'left' : x > rect.width * 0.6 ? 'right' : null;
+    const touch = e.changedTouches[0];
+    const x = forced ? touch.clientY - rect.top : touch.clientX - rect.left;
+    const span = forced ? rect.height : rect.width;
+    const side = x < span * 0.4 ? 'left' : x > span * 0.6 ? 'right' : null;
     const now = Date.now();
     if (side && lastTapRef.current.side === side && now - lastTapRef.current.t < 300) {
       if (now - lastKeySeekRef.current > 400) { seekBy(side === 'left' ? -10 : 10); triggerFlash(side); }
@@ -214,7 +221,9 @@ export default function Player({
   return (
     <div
       ref={containerRef}
-      className="fixed inset-0 bg-black z-[200] overflow-hidden"
+      data-tooltip-root={forced ? 'rotated' : 'flat'}
+      data-orient={landscape ? 'landscape' : 'portrait'}
+      className={`player-root fixed bg-black z-[200] overflow-hidden ${forced ? 'player-forced-landscape' : 'inset-0'}`}
       onMouseMove={showControls}
       onTouchEnd={onTouchEndContainer}
       style={{ ...subtitleCssVars(subSettings), '--video-fit': screenFit }}
@@ -232,12 +241,12 @@ export default function Player({
 
       {state.buffering && !state.fatalError && <BufferingSpinner weakConnection={weakConnection} />}
 
-      <SubtitleOverlay text={activeCue?.text} controlsVisible={controlsVisible} />
+      <SubtitleOverlay text={activeCue?.text} controlsVisible={controlsVisible} landscape={landscape} />
 
       {showSkipIntro && !settingsOpen && (
         <button
           onClick={() => seekTo(source.introEnd)}
-          className="absolute bottom-28 right-5 z-20 bg-surface/90 border border-line rounded-md px-4 py-2 text-sm font-semibold"
+          className={`absolute z-20 bg-surface/90 border border-line rounded-md px-4 py-2 text-sm font-semibold ${landscape ? 'bottom-[calc(120px+var(--sab))] right-[calc(16px+var(--sar))]' : 'bottom-28 right-5'}`}
         >
           Skip Intro
         </button>
@@ -261,7 +270,15 @@ export default function Player({
         onSeekBy={(d) => { seekBy(d); triggerFlash(d < 0 ? 'left' : 'right'); }}
         onVolumeChange={setVolume}
         onToggleMute={toggleMute}
-        onOpenSettings={() => setSettingsOpen(true)}
+        onOpenSettings={() => { setSettingsView('main'); setSettingsOpen(true); }}
+        onOpenAudio={() => { setSettingsView('audio'); setSettingsOpen(true); }}
+        audioTracks={state.audioTracks}
+        landscape={landscape}
+        short={orient.short}
+        forced={forced}
+        orientationAvailable={orient.available}
+        orientationActive={orient.mode !== 'portrait'}
+        onToggleOrientation={orient.toggle}
         subtitleTracks={source.subtitles}
         activeSubtitleLang={activeSubtitleLang}
         onSubtitleChange={setActiveSubtitleLang}
@@ -285,6 +302,8 @@ export default function Player({
       {settingsOpen && (
         <SettingsPanel
           onClose={() => setSettingsOpen(false)}
+          landscape={landscape}
+          initialView={settingsView}
           audioTracks={state.audioTracks}
           activeAudioTrack={state.activeAudioTrack}
           onAudioChange={setAudioTrack}

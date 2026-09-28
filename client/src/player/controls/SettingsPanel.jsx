@@ -110,8 +110,10 @@ export default function SettingsPanel({
   levels, activeLevel, onQualityChange,
   dataSaver, onDataSaverChange,
   weakConnection,
+  landscape = false,
+  initialView = 'main',
 }) {
-  const [view, setView] = useState('main');
+  const [view, setView] = useState(initialView);
   const [toast, setToast] = useState(false);
   const sheetRef = useRef(null);
   const dragStartY = useRef(null);
@@ -149,16 +151,18 @@ export default function SettingsPanel({
 
   return (
     <div
-      className="absolute inset-0 z-30 flex md:justify-end"
+      className={`absolute inset-0 z-30 flex ${landscape ? 'justify-end' : 'md:justify-end'}`}
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div
         ref={sheetRef}
-        onTouchStart={onTouchStart}
-        onTouchMove={onTouchMove}
-        className="mt-auto md:mt-0 w-full md:w-[380px] md:h-full max-h-[85dvh] md:max-h-none overflow-y-auto bg-black rounded-t-2xl md:rounded-none border-t md:border-t-0 md:border-l border-white/25 px-5 pb-[calc(20px+env(safe-area-inset-bottom,0px))] pt-3 md:pt-5"
+        onTouchStart={landscape ? undefined : onTouchStart}
+        onTouchMove={landscape ? undefined : onTouchMove}
+        className={landscape
+          ? 'w-[min(380px,45%)] h-full overflow-y-auto bg-black border-l border-white/25 pl-5 pr-[calc(20px+var(--sar))] pb-[calc(20px+var(--sab))] pt-[calc(16px+var(--sat))]'
+          : 'mt-auto md:mt-0 w-full md:w-[380px] md:h-full max-h-[85dvh] md:max-h-none overflow-y-auto bg-black rounded-t-2xl md:rounded-none border-t md:border-t-0 md:border-l border-white/25 px-5 pb-[calc(20px+env(safe-area-inset-bottom,0px))] pt-3 md:pt-5'}
       >
-        <div className="md:hidden flex justify-center pb-2">
+        <div className={landscape ? 'hidden' : 'md:hidden flex justify-center pb-2'}>
           <div className="w-10 h-1 rounded-full bg-white/30" />
         </div>
 

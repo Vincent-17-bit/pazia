@@ -1,10 +1,10 @@
-export default function SubtitleOverlay({ text, controlsVisible }) {
+export default function SubtitleOverlay({ text, controlsVisible, landscape = false }) {
   if (!text) return null;
   const lines = text.split('\n');
 
   return (
     <div
-      className={`absolute left-0 right-0 flex justify-center px-6 pointer-events-none transition-[bottom] duration-200 ${controlsVisible ? 'bottom-28 md:bottom-32' : 'bottom-10'}`}
+      className={`absolute left-0 right-0 flex justify-center px-6 pointer-events-none transition-[bottom] duration-200 ${controlsVisible ? (landscape ? 'bottom-[calc(112px+var(--sab))]' : 'bottom-28 md:bottom-32') : 'bottom-10'}`}
     >
       {/* window: box behind the whole caption region */}
       <div
