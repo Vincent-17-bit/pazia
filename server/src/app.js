@@ -20,6 +20,8 @@ import historyRoute from './routes/history.js';
 import continueWatchingRoute from './routes/continueWatching.js';
 import externalRoute from './routes/external.js';
 import eventsRoute from './routes/events.js';
+import adminRoute from './routes/admin.js';
+import cronRoute from './routes/cron.js';
 
 const app = express();
 
@@ -51,6 +53,8 @@ app.use('/api/history', historyRoute);
 app.use('/api/continue-watching', continueWatchingRoute);
 app.use('/api/external', externalRoute);
 app.use('/api/events', eventsRoute);
+app.use('/api/admin', adminRoute);
+app.use('/api/cron', cronRoute);
 
 app.use((err, req, res, next) => {
   console.error(err);

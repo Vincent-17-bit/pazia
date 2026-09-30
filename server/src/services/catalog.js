@@ -4,8 +4,29 @@ import { cached } from './cache.js';
 import { TAB_MAPPING, ROW_MAPPING } from './tabMapping.js';
 import { registry } from './genres.js';
 import { DEMO_ROWS, EXTRA_ROWS } from '../data/demo.js';
+import { getIngestedRowItems } from './ingest/read.js';
+import { dbReady } from './db.js';
+import { dedupeKey } from './ingest/common.js';
 
 const TTL = 20 * 60 * 1000;
+const INGEST_TTL = 15 * 60 * 1000;
+
+// Merges DB-ingested Archive.org/YouTube titles into an existing TMDB row.
+// Purely additive and fails silent - if the DB is unavailable or empty,
+// the row looks exactly as it did before this feature existed.
+async function withIngestedTitles(rowKey, items) {
+  if (!dbReady) return items;
+  try {
+    const ingested = await cached(`ingested-row:${rowKey}`, INGEST_TTL, () => getIngestedRowItems(rowKey));
+    if (!ingested.length) return items;
+    const seen = new Set(items.map((i) => dedupeKey(i.title, i.year)));
+    const extra = ingested.filter((i) => !seen.has(dedupeKey(i.title, i.year)));
+    return [...items, ...extra];
+  } catch (err) {
+    console.error(`[catalog] ingested merge failed for ${rowKey}:`, err.message);
+    return items;
+  }
+}
 
 async function fetchTrending(page = 1) {
   const data = await tmdbFetch('/trending/all/day', { page });
@@ -110,8 +131,8 @@ export async function getTabItems(tab, page = 1) {
 }
 
 export async function getRowItems(key) {
-  if (!hasTmdbKey()) return EXTRA_ROWS[key] || [];
+  if (!hasTmdbKey()) return withIngestedTitles(key, EXTRA_ROWS[key] || []);
   const mapping = ROW_MAPPING[key];
-  if (!mapping) return [];
-  return cached(`row:${key}:merged`, TTL, () => resolveMappingMerged(mapping));
+  const base = mapping ? await cached(`row:${key}:merged`, TTL, () => resolveMappingMerged(mapping)) : [];
+  return withIngestedTitles(key, base);
 }

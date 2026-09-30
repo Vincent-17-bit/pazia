@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import PlayerCore from './PlayerCore.jsx';
+import YoutubeEmbedPlayer from './YoutubeEmbedPlayer.jsx';
 import ControlsOverlay from './controls/ControlsOverlay.jsx';
 import SettingsPanel from './controls/SettingsPanel.jsx';
 import SubtitleOverlay from './SubtitleOverlay.jsx';
@@ -196,6 +197,20 @@ export default function Player({
   }
 
   const showSkipIntro = source.introEnd && state.current < source.introEnd && state.current < 90;
+
+  // ingested YouTube titles: official embedded player, native controls only,
+  // no custom overlay - required for YouTube ToS compliance
+  if (source.type === 'youtube_embed') {
+    return (
+      <YoutubeEmbedPlayer
+        videoId={source.videoId}
+        startAt={startAt}
+        onBack={onBack}
+        onEnded={onEnded}
+        onSaveNow={handleSaveNow}
+      />
+    );
+  }
 
   // embed-only sources (vimeo, archive.org fallback) - no custom controls, provider handles its own UI
   if (source.type === 'iframe') {
